@@ -180,6 +180,16 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 
 .dashboard-switcher{display:flex;gap:10px;align-items:center;margin:0 0 18px}
 
+
+.gate-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.gate-card{width:100%;max-width:420px}
+.gate-form{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow)}
+.gate-msg{min-height:16px}
+
+.gate-logo-wrap{display:flex;justify-content:center;margin-bottom:18px}
+.gate-logo{height:46px;width:auto;display:block}
+
+
 .auth-panel{margin:0 0 18px}
 .auth-card{display:flex;justify-content:flex-end;background:transparent;border:0;padding:0;box-shadow:none}
 .auth-card-minimal{max-width:440px;margin-left:auto;width:100%}
@@ -188,13 +198,6 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .auth-actions{display:flex;gap:10px;flex-wrap:wrap}
 .auth-user-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;box-shadow:var(--shadow)}
 .auth-message-minimal{min-height:16px;margin-top:2px}
-
-.gate-shell{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;padding:24px}
-.gate-card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:20px}
-.gate-logo-wrap{display:flex;justify-content:center;margin-bottom:18px}
-.gate-logo{height:44px;width:auto;display:block}
-.gate-msg{min-height:18px;margin-top:2px}
-
 .app-locked .dashboard-switcher,
 .app-locked #dashboard-projects,
 .app-locked #dashboard-demands{opacity:.42;pointer-events:none;filter:grayscale(.08)}
@@ -424,7 +427,7 @@ html[data-theme="dark"] .view-tab.complete{
 document.addEventListener('keydown', function(event){
   const gate=document.getElementById('auth-gate');
   if(!gate || gate.style.display==='none') return;
-  if(event.key==='Enter'){
+  if(event.key === 'Enter'){
     event.preventDefault();
     gateLogin();
   }
@@ -434,17 +437,15 @@ document.addEventListener('keydown', function(event){
 </head>
 <body>
 
-<div id="auth-gate" class="gate-shell">
+<div id="auth-gate" class="gate-screen">
   <div class="gate-card">
-    <div class="gate-logo-wrap">
-      <img id="gate-logo" class="gate-logo" alt="RECON" src="">
-    </div>
-    <div class="auth-form" style="display:flex">
-      <input type="text" id="gate-email" placeholder="Login">
-      <input type="password" id="gate-password" placeholder="Senha">
-      <div class="auth-actions">
-        <button class="btn btn-primary" type="button" onclick="gateLogin()">Entrar</button>
+    <div class="gate-form">
+      <div class="gate-logo-wrap">
+        <img id="gate-logo" class="gate-logo" alt="RECON" src="">
       </div>
+      <input type="text" id="gate-email" placeholder="Login" autocomplete="username">
+      <input type="password" id="gate-password" placeholder="Senha" autocomplete="current-password">
+      <button class="btn btn-primary" type="button" onclick="gateLogin()">Entrar</button>
       <div id="gate-msg" class="helper-txt gate-msg"></div>
     </div>
   </div>
@@ -544,8 +545,8 @@ document.addEventListener('keydown', function(event){
 <script>
 const STORAGE_KEY='recon_projects_v1';
 const THEME_KEY='recon_theme_v1';
-const SUPABASE_URL='COLE_AQUI_SUPABASE_URL';
-const SUPABASE_ANON_KEY='COLE_AQUI_SUPABASE_ANON_KEY';
+const SUPABASE_URL='https://witajevffeuvtvgyaeyp.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpdGFqZXZmZmV1dnR2Z3lhZXlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MTc5NTQsImV4cCI6MjA5MTE5Mzk1NH0.wVTXQghGE8SsxKx0q3hVJP13PWa8bILXUsNmYwmy6Yo';
 const SUPABASE_TABLE='recon_projects';
 const supabaseClient = (window.supabase && SUPABASE_URL !== 'COLE_AQUI_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'COLE_AQUI_SUPABASE_ANON_KEY')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -681,14 +682,14 @@ function getDemandParents(project, stepIndex){
   if(!Array.isArray(map[key]) || !map[key].length){
     map[key] = baseChecks.map(item=>({text:item.text,done:!!item.done,children:[],open:false}));
   } else {
-    const baseTexts = new Set(baseChecks.map(item=>item.text));
-    map[key] = map[key].filter(parent=>baseTexts.has(parent.text));
     const existingTexts = new Set(map[key].map(item=>item.text));
+
     baseChecks.forEach(item=>{
       if(!existingTexts.has(item.text)){
         map[key].push({text:item.text,done:!!item.done,children:[],open:false});
       }
     });
+
     map[key].forEach(parent=>{
       const matched = baseChecks.find(item=>item.text===parent.text);
       if(matched) parent.done = !!matched.done;
@@ -696,6 +697,7 @@ function getDemandParents(project, stepIndex){
       if(typeof parent.open !== 'boolean') parent.open = false;
     });
   }
+
   return map[key];
 }
 
@@ -839,7 +841,7 @@ function toggleDemandParent(projectId, stepIndex, parentIndex){
   if(!parents[parentIndex]) return;
   parents[parentIndex].done = !parents[parentIndex].done;
   syncDemandBaseToProject(project, stepIndex, parentIndex);
-  saveProject();
+  persistProjects();
   render();
 }
 
@@ -850,7 +852,7 @@ function toggleDemandChild(projectId, stepIndex, parentIndex, childIndex){
   const child = parents[parentIndex]?.children?.[childIndex];
   if(!child) return;
   child.done = !child.done;
-  saveProject();
+  persistProjects();
   render();
 }
 
@@ -864,7 +866,7 @@ function addDemandChild(projectId, stepIndex, parentIndex){
   if(!parents[parentIndex].children) parents[parentIndex].children = [];
   parents[parentIndex].children.push({text:value, done:false});
   if(input) input.value = '';
-  saveProject();
+  persistProjects();
   render();
 }
 
@@ -959,48 +961,6 @@ async function handleSignUp(){
   setAuthMessage('Conta criada.');
 }
 
-
-async function gateLogin(){
-  const email=(document.getElementById('gate-email')?.value || '').trim();
-  const password=(document.getElementById('gate-password')?.value || '').trim();
-  const msg=document.getElementById('gate-msg');
-
-  if(msg){
-    msg.textContent='';
-    msg.style.color='var(--muted)';
-  }
-
-  if(!email || !password){
-    if(msg){
-      msg.textContent='Preencha login e senha.';
-      msg.style.color='var(--danger)';
-    }
-    return;
-  }
-
-  if(!hasSupabaseConfig()){
-    if(msg){
-      msg.textContent='Supabase não configurado.';
-      msg.style.color='var(--danger)';
-    }
-    return;
-  }
-
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-  if(error){
-    if(msg){
-      msg.textContent=error.message || 'Acesso negado.';
-      msg.style.color='var(--danger)';
-    }
-    return;
-  }
-
-  if(msg) msg.textContent='';
-  await refreshSession();
-  await loadProjects();
-}
-
 async function handleSignOut(){
   try{
     if(hasSupabaseConfig() && supabaseClient){
@@ -1012,19 +972,22 @@ async function handleSignOut(){
   }catch(error){
     console.error(error);
   }
+
   authSession = null;
   projects = [];
-  renderAuthUI();
   render();
+  renderAuthUI();
+
   const gate=document.getElementById('auth-gate');
-  if(gate) gate.style.display='flex';
   const gateMsg=document.getElementById('gate-msg');
+  const gateEmail=document.getElementById('gate-email');
+  const gatePassword=document.getElementById('gate-password');
+
+  if(gate) gate.style.display='flex';
   if(gateMsg){
     gateMsg.textContent='';
     gateMsg.style.color='var(--muted)';
   }
-  const gateEmail=document.getElementById('gate-email');
-  const gatePassword=document.getElementById('gate-password');
   if(gateEmail) gateEmail.value='';
   if(gatePassword) gatePassword.value='';
 }
@@ -1084,7 +1047,7 @@ async function loadProjects(){
   }
 }
 
-async function saveProject(){
+async function persistProjects(){
   try{
     if(hasSupabaseConfig()){
       await refreshSession();
@@ -1097,6 +1060,57 @@ async function saveProject(){
   }catch(error){
     console.error(error);
     setAuthMessage('Falha ao salvar dados.', true);
+  }
+}
+
+
+async function gateLogin(){
+  const email=(document.getElementById('gate-email')?.value || '').trim();
+  const password=(document.getElementById('gate-password')?.value || '').trim();
+  const msg=document.getElementById('gate-msg');
+
+  if(msg){
+    msg.textContent='';
+    msg.style.color='var(--muted)';
+  }
+
+  if(!email || !password){
+    if(msg){
+      msg.textContent='Preencha login e senha.';
+      msg.style.color='var(--danger)';
+    }
+    return;
+  }
+
+  if(!hasSupabaseConfig() || !supabaseClient){
+    if(msg){
+      msg.textContent='Supabase não configurado.';
+      msg.style.color='var(--danger)';
+    }
+    return;
+  }
+
+  try{
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if(error){
+      if(msg){
+        msg.textContent=error.message || 'Acesso negado.';
+        msg.style.color='var(--danger)';
+      }
+      return;
+    }
+
+    authSession = data?.session || null;
+    if(msg) msg.textContent='';
+    renderAuthUI();
+    await loadProjects();
+  }catch(error){
+    if(msg){
+      msg.textContent='Não foi possível realizar o login.';
+      msg.style.color='var(--danger)';
+    }
+    console.error(error);
   }
 }
 
@@ -1241,7 +1255,16 @@ function normalizeChecksByStep(project){
 
 function getTempChecksForStep(stepIndex){
   const key=String(Number(stepIndex)||0);
-  if(!tempChecksByStep[key]) tempChecksByStep[key]=getChecksForStep(stepIndex);
+  if(!tempChecksByStep[key] || !tempChecksByStep[key].length){
+    tempChecksByStep[key]=getChecksForStep(stepIndex);
+  } else {
+    const existingTexts = new Set(tempChecksByStep[key].map(item => item.text));
+    getChecksForStep(stepIndex).forEach(item=>{
+      if(!existingTexts.has(item.text)){
+        tempChecksByStep[key].push({text:item.text,done:false});
+      }
+    });
+  }
   tempChecks=cloneChecks(tempChecksByStep[key]);
   return tempChecks;
 }
@@ -1319,6 +1342,27 @@ function normalizeProjectData(project){
   normalized.completedAt=project?.completedAt || '';
   normalized.pipelineDays=project?.pipelineDays ?? null;
   normalized.demandsByStep=(project?.demandsByStep && typeof project.demandsByStep==='object') ? project.demandsByStep : {};
+
+  if(!normalized.checksByStep || typeof normalized.checksByStep!=='object'){
+    normalized.checksByStep = {};
+  }
+
+  STEPS.forEach((step, index)=>{
+    const key = String(index);
+    if(!Array.isArray(normalized.checksByStep[key]) || !normalized.checksByStep[key].length){
+      normalized.checksByStep[key] = getChecksForStep(index);
+    } else {
+      const existingTexts = new Set(normalized.checksByStep[key].map(item => item.text));
+      getChecksForStep(index).forEach(item => {
+        if(!existingTexts.has(item.text)){
+          normalized.checksByStep[key].push({ text:item.text, done:false });
+        }
+      });
+    }
+  });
+
+  const currentKey = String(Number(normalized.step)||0);
+  normalized.checks = cloneChecks(normalized.checksByStep[currentKey] || getChecksForStep(Number(normalized.step)||0));
   return normalized;
 }
 
@@ -1811,7 +1855,7 @@ function addCheckItem(){
   refreshModalPartial();
 }
 
-function saveProject(id){
+async function saveProject(id){
   const previousProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : null;
   const projectName=(document.getElementById('f-project-name').value || '').trim();
   if(!projectName) return;
@@ -1819,6 +1863,19 @@ function saveProject(id){
   persistCurrentTempChecks();
 
   const nextChecksByStep=Object.fromEntries(Object.entries(tempChecksByStep).map(([key,list])=>[key,cloneChecks(list)]));
+  STEPS.forEach((step,index)=>{
+    const key=String(index);
+    if(!Array.isArray(nextChecksByStep[key]) || !nextChecksByStep[key].length){
+      nextChecksByStep[key]=getChecksForStep(index);
+    } else {
+      const existingTexts = new Set(nextChecksByStep[key].map(item => item.text));
+      getChecksForStep(index).forEach(item=>{
+        if(!existingTexts.has(item.text)){
+          nextChecksByStep[key].push({text:item.text,done:false});
+        }
+      });
+    }
+  });
   let nextStep=Number(tempStep);
   const completionEligible=shouldShowCompletedStep({step:nextStep,checksByStep:nextChecksByStep});
   if(nextStep===COMPLETED_STEP_INDEX && !completionEligible){
@@ -1857,7 +1914,7 @@ function saveProject(id){
     projects.push({...payload,id:nextId(),timeline});
   }
 
-  saveProject();
+  await persistProjects();
   const finalProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : projects[projects.length-1];
   closeModal();
   if(isProjectCompleted(finalProject)) activeView='completed';
@@ -1999,20 +2056,43 @@ function toggleProject(el){
   project.classList.toggle('collapsed');
 }
 
-if(hasSupabaseConfig()){
-  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-    authSession = session || null;
+async function initApp(){
+  if(hasSupabaseConfig()){
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+      authSession = session || null;
+      renderAuthUI();
+      if(authSession?.user){
+        await loadProjects();
+      } else {
+        projects = [];
+        render();
+      }
+    });
+
+    try{
+      const { data, error } = await supabaseClient.auth.getSession();
+      if(!error){
+        authSession = data.session || null;
+      }
+    }catch(error){
+      console.error(error);
+      authSession = null;
+    }
+
     renderAuthUI();
     if(authSession?.user){
       await loadProjects();
     } else {
-      projects = [];
       render();
     }
-  });
+    return;
+  }
+
+  renderAuthUI();
+  await loadProjects();
 }
-renderAuthUI();
-loadProjects();
+
+initApp();
 </script>
 </body>
 </html>
