@@ -177,6 +177,11 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px}
 .section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
 .legend{font-size:12px;color:var(--muted)}
+.hierarchy-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hierarchy-note{font-size:11px;color:var(--muted)}
+.order-btn{width:32px;height:32px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+.order-btn:disabled{opacity:.35;cursor:not-allowed}
+.card-order-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 
 .dashboard-switcher{display:flex;gap:10px;align-items:center;margin:0 0 18px}
 
@@ -506,7 +511,11 @@ document.addEventListener('keydown', function(event){
   <div class="view-panel active" id="panel-pipeline">
     <div class="section-head">
       <p class="section-label">Pipeline de projetos</p>
-      <p class="legend">Clique em um card para editar.</p>
+      <div class="hierarchy-tools">
+        <span class="hierarchy-note">Reordene conforme sua prioridade.</span>
+        <button class="btn btn-small" type="button" onclick="resetProjectOrder('pipeline')">Restaurar ordem</button>
+        <p class="legend">Clique em um card para editar.</p>
+      </div>
     </div>
     <div class="client-grid" id="client-grid"></div>
   </div>
@@ -531,7 +540,11 @@ document.addEventListener('keydown', function(event){
   <div class="dashboard-panel" id="dashboard-demands">
     <div class="section-head">
       <p class="section-label">Dashboard de demandas</p>
-      <p class="legend">As subtarefas da pipeline aparecem aqui como demandas-base. Subtarefas extras criadas aqui ficam somente neste dashboard.</p>
+      <div class="hierarchy-tools">
+        <span class="hierarchy-note">Reordene os projetos deste painel de forma independente.</span>
+        <button class="btn btn-small" type="button" onclick="resetProjectOrder('demands')">Restaurar ordem</button>
+        <p class="legend">As subtarefas da pipeline aparecem aqui como demandas-base. Subtarefas extras criadas aqui ficam somente neste dashboard.</p>
+      </div>
     </div>
     <div class="demands-board" id="demands-board"></div>
   </div>
@@ -623,6 +636,72 @@ let modalIsNewProject=false;
 
 let activeDashboard='projects';
 let demandsUiState={projects:{},steps:{}};
+
+function ensureProjectOrderState(project){
+  if(!project.projectOrder || typeof project.projectOrder!=='object') project.projectOrder={};
+  if(typeof project.projectOrder.pipeline !== 'number') project.projectOrder.pipeline = Number(project.id) || 0;
+  if(typeof project.projectOrder.demands !== 'number') project.projectOrder.demands = Number(project.id) || 0;
+  if(typeof project.projectOrder.completed !== 'number') project.projectOrder.completed = Number(project.id) || 0;
+  return project.projectOrder;
+}
+
+function getProjectOrder(project, view='pipeline'){
+  const orderState=ensureProjectOrderState(project);
+  return Number(orderState[view]);
+}
+
+function sortProjectsByView(list, view='pipeline'){
+  return [...list].sort((a,b)=>{
+    const orderDiff=getProjectOrder(a, view)-getProjectOrder(b, view);
+    if(orderDiff!==0) return orderDiff;
+    const nameA=String(a.projectName||'');
+    const nameB=String(b.projectName||'');
+    return nameA.localeCompare(nameB,'pt-BR');
+  });
+}
+
+function normalizeProjectOrder(view='pipeline', list=projects){
+  sortProjectsByView(list, view).forEach((project,index)=>{
+    ensureProjectOrderState(project)[view]=index;
+  });
+}
+
+async function moveProjectOrder(projectId, view='pipeline', direction=1){
+  const relevant=view==='demands'
+    ? sortProjectsByView(projects.filter(project=>!isProjectCompleted(project)), view)
+    : sortProjectsByView(projects.filter(project=>view==='completed' ? isProjectCompleted(project) : !isProjectCompleted(project)), view);
+  const currentIndex=relevant.findIndex(project=>Number(project.id)===Number(projectId));
+  if(currentIndex<0) return;
+  const targetIndex=currentIndex+Number(direction||0);
+  if(targetIndex<0 || targetIndex>=relevant.length) return;
+  const current=relevant[currentIndex];
+  const target=relevant[targetIndex];
+  const currentOrder=getProjectOrder(current, view);
+  const targetOrder=getProjectOrder(target, view);
+  ensureProjectOrderState(current)[view]=targetOrder;
+  ensureProjectOrderState(target)[view]=currentOrder;
+  normalizeProjectOrder(view);
+  await persistProjects();
+  render();
+}
+
+async function resetProjectOrder(view='pipeline'){
+  const base=view==='demands'
+    ? projects.filter(project=>!isProjectCompleted(project))
+    : projects.filter(project=>view==='completed' ? isProjectCompleted(project) : !isProjectCompleted(project));
+  base
+    .sort((a,b)=>{
+      const da=daysLeft(a.deadline); const db=daysLeft(b.deadline);
+      const va=da===null?9999:da; const vb=db===null?9999:db;
+      if(va!==vb) return va-vb;
+      return String(a.projectName||'').localeCompare(String(b.projectName||''),'pt-BR');
+    })
+    .forEach((project,index)=>{
+      ensureProjectOrderState(project)[view]=index;
+    });
+  await persistProjects();
+  render();
+}
 
 
 function ensureDemandUiState(){
@@ -759,12 +838,12 @@ function toggleDemandsProject(projectId){
 function renderDemandsBoard(){
   const board=document.getElementById('demands-board');
   if(!board) return;
-  const activeProjects=projects.filter(project=>!isProjectCompleted(project));
+  const activeProjects=sortProjectsByView(projects.filter(project=>!isProjectCompleted(project)), 'demands');
   if(!activeProjects.length){
     board.innerHTML='<div class="demand-empty">Nenhum projeto ativo para exibir demandas.</div>';
     return;
   }
-  board.innerHTML = activeProjects.map(project=>{
+  board.innerHTML = activeProjects.map((project,index)=>{
     const stats=demandStats(project);
     return `
       <div class="demands-project ${isDemandsProjectCollapsed(project.id)?'collapsed':''}" data-project-id="${project.id}">
@@ -777,6 +856,10 @@ function renderDemandsBoard(){
             <div class="demands-meta">
               <span class="pill">Demandas-base: ${stats.parentDone}/${stats.parentTotal}</span>
               <span class="pill">Subtarefas extras: ${stats.childDone}/${stats.childTotal}</span>
+            </div>
+            <div class="card-order-actions" onclick="event.stopPropagation()">
+              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, 'demands', -1)" ${index===0?'disabled':''} title="Mover para cima">↑</button>
+              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, 'demands', 1)" ${index===activeProjects.length-1?'disabled':''} title="Mover para baixo">↓</button>
             </div>
             <div class="demands-project-toggle" onclick="toggleDemandsProject(${project.id})">
               <span>›</span>
@@ -884,6 +967,22 @@ function getSupabaseProjectRef(){
   }
 }
 
+function clearSupabaseStoredSession(){
+  try{
+    const projectRef = getSupabaseProjectRef();
+    const keysToRemove = [];
+    for(let i=0;i<localStorage.length;i++){
+      const key = localStorage.key(i);
+      if(!key) continue;
+      if((projectRef && key.includes(`sb-${projectRef}`)) || key.startsWith('sb-')){
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key=>localStorage.removeItem(key));
+  }catch(error){
+    console.error(error);
+  }
+}
 
 function hasSupabaseConfig(){
   return !!supabaseClient;
@@ -933,16 +1032,25 @@ function renderAuthUI(){
 
 async function refreshSession(){
   if(!hasSupabaseConfig()) return null;
-
   try{
     const { data, error } = await supabaseClient.auth.getSession();
-    if(error){
-      console.error(error);
+    if(error) throw error;
+    const session = data?.session || null;
+    if(!session){
       authSession = null;
-    } else {
-      authSession = data?.session || null;
+      renderAuthUI();
+      return null;
     }
 
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+    if(userError || !userData?.user){
+      authSession = null;
+      clearSupabaseStoredSession();
+      renderAuthUI();
+      return null;
+    }
+
+    authSession = session;
     renderAuthUI();
     return authSession;
   }catch(error){
@@ -990,12 +1098,13 @@ async function handleSignUp(){
 async function handleSignOut(){
   try{
     if(hasSupabaseConfig() && supabaseClient){
-      await supabaseClient.auth.signOut();
+      await supabaseClient.auth.signOut({ scope:'local' });
     }
   }catch(error){
     console.error(error);
   }
 
+  clearSupabaseStoredSession();
   authSession = null;
   projects = [];
   tempStep = 0;
@@ -1009,8 +1118,23 @@ async function handleSignOut(){
   try{ localStorage.removeItem(STORAGE_KEY); }catch(error){}
 
   closeModal(true);
-  renderAuthUI();
   render();
+  renderAuthUI();
+
+  const gate=document.getElementById('auth-gate');
+  const gateMsg=document.getElementById('gate-msg');
+  const gateEmail=document.getElementById('gate-email');
+  const gatePassword=document.getElementById('gate-password');
+
+  if(gate) gate.style.display='flex';
+  if(gateMsg){
+    gateMsg.textContent='';
+    gateMsg.style.color='var(--muted)';
+  }
+  if(gateEmail) gateEmail.value='';
+  if(gatePassword) gatePassword.value='';
+
+  setTimeout(()=>window.location.reload(), 80);
 }
 
 async function loadProjectsFromSupabase(){
@@ -1126,7 +1250,6 @@ async function gateLogin(){
 
     authSession = data?.session || null;
     if(msg) msg.textContent='';
-    renderAuthUI();
     await loadProjects();
   }catch(error){
     console.error(error);
@@ -1365,6 +1488,7 @@ function normalizeProjectData(project){
   normalized.completedAt=project?.completedAt || '';
   normalized.pipelineDays=project?.pipelineDays ?? null;
   normalized.demandsByStep=(project?.demandsByStep && typeof project.demandsByStep==='object') ? project.demandsByStep : {};
+  normalized.projectOrder=(project?.projectOrder && typeof project.projectOrder==='object') ? project.projectOrder : {};
 
   if(!normalized.checksByStep || typeof normalized.checksByStep!=='object'){
     normalized.checksByStep = {};
@@ -1416,11 +1540,8 @@ function renderProjectCards(list, targetId, options={}){
     return;
   }
 
-  const sorted=[...list].sort((a,b)=>{
-    const da=daysLeft(a.deadline); const db=daysLeft(b.deadline);
-    const va=da===null?9999:da; const vb=db===null?9999:db;
-    return va-vb;
-  });
+  const orderView=options.orderView || (isCompletedView ? 'completed' : 'pipeline');
+  const sorted=sortProjectsByView(list, orderView);
 
   grid.innerHTML=sorted.map(project=>{
     const st=statusOf(project);
@@ -1457,6 +1578,10 @@ function renderProjectCards(list, targetId, options={}){
             </div>
           </div>
           <div class="right-meta">
+            <div class="card-order-actions" onclick="event.stopPropagation()">
+              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, '${orderView}', -1)" ${sorted.findIndex(item=>Number(item.id)===Number(project.id))===0?'disabled':''} title="Mover para cima">↑</button>
+              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, '${orderView}', 1)" ${sorted.findIndex(item=>Number(item.id)===Number(project.id))===sorted.length-1?'disabled':''} title="Mover para baixo">↓</button>
+            </div>
             <span class="badge ${st.cls}">${st.label}</span>
             <span class="deadline-txt">${isProjectCompleted(project) && completionInfo ? completionInfo : `${dlTxt} · ${fmtDate(project.deadline)}`}</span>
             <span class="task-txt">${isProjectCompleted(project)?`Projeto finalizado${project.completedAt?` em ${formatDateTime(project.completedAt)}`:''}`:`${done}/${total} tarefas · ${percent}% concluído`}</span>
@@ -1487,12 +1612,12 @@ function renderProjectCards(list, targetId, options={}){
 
 function renderGrid(){
   const activeProjects=projects.filter(project=>!isProjectCompleted(project));
-  renderProjectCards(activeProjects,'client-grid',{completedView:false});
+  renderProjectCards(activeProjects,'client-grid',{completedView:false,orderView:'pipeline'});
 }
 
 function renderCompletedGrid(){
   const completedProjects=projects.filter(project=>isProjectCompleted(project));
-  renderProjectCards(completedProjects,'completed-grid',{completedView:true});
+  renderProjectCards(completedProjects,'completed-grid',{completedView:true,orderView:'completed'});
 }
 
 function render(){
@@ -2103,12 +2228,11 @@ async function initApp(){
   if(hasSupabaseConfig()){
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       authSession = session || null;
-      renderAuthUI();
-
       if(authSession?.user){
         await loadProjects();
       } else {
         projects = [];
+        renderAuthUI();
         render();
       }
     });
@@ -2118,6 +2242,7 @@ async function initApp(){
       await loadProjects();
     } else {
       projects = [];
+      renderAuthUI();
       render();
     }
     return;
