@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RECON — Dashboard de Projetos</title>
+<style>
+
+@font-face{
+  font-family:'Area Normal';
+  src:url('Area_Normal_Regular.otf') format('opentype');
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Area Normal';
+  src:url('Area_Normal_Bold.otf') format('opentype');
+  font-weight:700;
+  font-style:normal;
+  font-display:swap;
+}
+body{
+  font-family:'Area Normal', system-ui, -apple-system, Segoe UI, sans-serif !important;
+}
+strong, b, .bold, .metric-val, .client-name, .modal-title, .step-title{
+  font-weight:700 !important;
+}
+
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  color-scheme: light;
+  --bg:#F5F3EE;
+  --bg-elevated:#FBF8F3;
+  --card:#FFFFFF;
+  --card-soft:#EFEAE1;
+  --surface-muted:#FAF8F4;
+  --input-bg:#FFFFFF;
+
+  --text:#1E1C19;
+  --text-strong:#111111;
+  --text-soft:#6B645C;
+  --text-inverse:#FFFFFF;
+
+  --border:#DAD2C7;
+  --border-strong:#BFB3A3;
+  --line:#E7E0D6;
+
+  --accent:#1E1C19;
+  --accent-contrast:#FFFFFF;
+  --accent-soft:#E7DFD2;
+
+  --success:#1D9E75;
+  --success-soft:#E8F4EF;
+  --success-contrast:#FFFFFF;
+
+  --warning:#BA7E00;
+  --warning-soft:#F8EBD8;
+  --warning-contrast:#1E1C19;
+
+  --danger:#B23A3A;
+  --danger-soft:#F7E4E4;
+  --danger-contrast:#FFFFFF;
+
+  --info:#295EA4;
+  --info-soft:#E7EDF7;
+  --info-contrast:#FFFFFF;
+
+  --done-bg:#ECE8FB;
+  --done-text:#5648B4;
+
+  --progress-bg:#E0D8CD;
+  --progress-fill:#1D9E75;
+
+  --button-secondary-bg:transparent;
+  --button-secondary-text:var(--text);
+  --button-secondary-border:var(--border-strong);
+
+  --button-primary-bg:var(--accent);
+  --button-primary-text:var(--accent-contrast);
+  --button-primary-border:var(--accent);
+
+  --button-complete-bg:var(--success);
+  --button-complete-text:var(--success-contrast);
+  --button-complete-border:var(--success);
+
+  --shadow:0 12px 34px rgba(30,28,25,.06);
+  --overlay:rgba(20,18,16,.46);
+
+  --radius-sm:10px;
+  --radius-md:14px;
+  --radius-lg:22px;
+}
+html[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#111315;
+  --bg-elevated:#171A1D;
+  --card:#1A1D20;
+  --card-soft:#23282D;
+  --surface-muted:#161A1D;
+  --input-bg:#15181B;
+
+  --text:#F2EDE4;
+  --text-strong:#FFFFFF;
+  --text-soft:#B2A99C;
+  --text-inverse:#1A1D20;
+
+  --border:#30363B;
+  --border-strong:#4A5259;
+  --line:#262C31;
+
+  --accent:#F2EDE4;
+  --accent-contrast:#1A1D20;
+  --accent-soft:#262C31;
+
+  --success:#7DDAAE;
+  --success-soft:#1E2E27;
+  --success-contrast:#1A1D20;
+
+  --warning:#D8A63A;
+  --warning-soft:#392D1D;
+  --warning-contrast:#1A1D20;
+
+  --danger:#E28A8A;
+  --danger-soft:#3B2323;
+  --danger-contrast:#1A1D20;
+
+  --info:#8EB8F1;
+  --info-soft:#1F2B39;
+  --info-contrast:#1A1D20;
+
+  --done-bg:#2A2538;
+  --done-text:#D1C7FF;
+
+  --progress-bg:#2D3338;
+  --progress-fill:#1D9E75;
+
+  --button-secondary-bg:transparent;
+  --button-secondary-text:var(--text);
+  --button-secondary-border:var(--border-strong);
+
+  --button-primary-bg:var(--accent);
+  --button-primary-text:#1A1D20;
+  --button-primary-border:var(--accent);
+
+  --button-complete-bg:var(--success);
+  --button-complete-text:#1A1D20;
+  --button-complete-border:var(--success);
+
+  --shadow:0 14px 34px rgba(0,0,0,.28);
+  --overlay:rgba(6,7,8,.58);
+}
+
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.4;transition:background .25s ease,color .25s ease}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 40px}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logo-wrap{display:flex;align-items:center;margin-bottom:4px}
+.logo-mark{height:38px;width:auto;display:block}
+.theme-toggle{min-width:136px}
+.brand-block{display:flex;flex-direction:column;gap:10px}
+.brand{font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.page-title{font-size:32px;line-height:1.05;font-weight:700;letter-spacing:-.03em}
+.page-subtitle{font-size:14px;color:var(--muted);max-width:680px}
+.btn{font-size:13px;padding:11px 16px;border-radius:999px;border:1px solid var(--button-secondary-border);background:var(--button-secondary-bg);color:var(--button-secondary-text);cursor:pointer;transition:.18s ease;font-weight:600}
+.btn:hover{background:var(--card-soft)}
+.btn-primary{background:var(--button-primary-bg);color:var(--button-primary-text);border-color:var(--button-primary-border)}
+.btn-primary:hover{opacity:.9}
+.btn-small{padding:7px 12px;font-size:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow);transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}
+.metric-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;font-weight:700}
+.metric-val{font-size:30px;line-height:1;font-weight:700;letter-spacing:-.04em}
+.metric-sub{font-size:12px;color:var(--muted);margin-top:6px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px}
+.section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
+.legend{font-size:12px;color:var(--muted)}
+
+.dashboard-switcher{display:flex;gap:10px;align-items:center;margin:0 0 18px}
+
+
+.gate-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.gate-card{width:100%;max-width:420px}
+.gate-form{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow)}
+.gate-msg{min-height:16px}
+
+.auth-panel{margin:0 0 18px}
+.auth-card{display:flex;justify-content:flex-end;background:transparent;border:0;padding:0;box-shadow:none}
+.auth-card-minimal{max-width:440px;margin-left:auto;width:100%}
+.auth-form-wrap{display:flex;flex-direction:column;justify-content:center;gap:10px;width:100%}
+.auth-form{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow)}
+.auth-actions{display:flex;gap:10px;flex-wrap:wrap}
+.auth-user-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;box-shadow:var(--shadow)}
+.auth-message-minimal{min-height:16px;margin-top:2px}
+.app-locked .dashboard-switcher,
+.app-locked #dashboard-projects,
+.app-locked #dashboard-demands{opacity:.42;pointer-events:none;filter:grayscale(.08)}
+@media (max-width:900px){
+  .auth-card-minimal{max-width:none;margin-left:0}
+}
+
+.dashboard-tab{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:.18s ease}
+.dashboard-tab:hover{background:var(--card-soft);color:var(--text)}
+.dashboard-tab.active{background:var(--button-primary-bg);color:var(--button-primary-text);border-color:var(--button-primary-border)}
+.dashboard-panel{display:none}
+.dashboard-panel.active{display:block}
+.demands-board{display:flex;flex-direction:column;gap:14px}
+.demands-project{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow)}
+.demands-project.collapsed .demands-step-list{display:none}
+.demands-project-toggle{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  background:var(--card);transition:.2s ease;color:var(--text)
+}
+.demands-project-toggle:hover{background:var(--card-soft)}
+.demands-project-toggle span{display:inline-block;transition:.2s ease}
+.demands-project.collapsed .demands-project-toggle span{transform:rotate(-90deg)}
+.demands-step-progress{display:flex;align-items:center;gap:10px;margin-top:10px}
+.demands-step-progress-track{flex:1;height:8px;border-radius:999px;background:var(--progress-bg);overflow:hidden}
+.demands-step-progress-fill{height:100%;background:var(--progress-fill);border-radius:999px;transition:width .2s ease}
+.demands-step-progress-text{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap}
+
+.demands-project-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.demands-project-title{font-size:20px;font-weight:700;letter-spacing:-.03em}
+.demands-project-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.demands-step-list{display:flex;flex-direction:column;gap:12px}
+.demands-step{border:1px solid var(--border);border-radius:18px;background:var(--surface-muted);overflow:hidden}
+.demands-step summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.demands-step summary::-webkit-details-marker{display:none}
+.demands-step summary:hover{background:var(--card-soft)}
+.demands-step-title{font-size:14px;font-weight:700;color:var(--text)}
+.demands-step-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.demands-step-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
+.demand-parent{border:1px solid var(--border);border-radius:16px;background:var(--card);padding:12px}
+.demand-parent-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.demand-parent-main{display:flex;align-items:flex-start;gap:10px;min-width:0;flex:1}
+.demand-parent-main input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:2px}
+.demand-parent-text{font-size:13px;color:var(--text);line-height:1.4}
+.demand-parent-text.done{text-decoration:line-through;color:var(--muted);opacity:.78}
+.demand-children{display:flex;flex-direction:column;gap:8px;margin-top:10px;padding-left:26px}
+.demand-child{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface-muted);padding:9px 10px}
+.demand-child input[type=checkbox]{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+.demand-child-text{font-size:12px;color:var(--text);line-height:1.35}
+.demand-child-text.done{text-decoration:line-through;color:var(--muted);opacity:.78}
+.demand-add-row{display:flex;gap:8px;margin-top:10px;padding-left:26px}
+.demand-add-row input{flex:1}
+.demand-empty{padding:18px;border:1px dashed var(--border-strong);border-radius:16px;color:var(--muted);text-align:center;background:var(--surface-muted)}
+.demands-meta{display:flex;flex-wrap:wrap;gap:8px}
+
+.view-tabs{display:flex;gap:10px;align-items:center;margin:8px 0 18px}
+.view-tab{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:.18s ease}
+.view-tab:hover{background:var(--card-soft);color:var(--text)}
+.view-tab.active{background:var(--button-primary-bg);color:var(--button-primary-text);border-color:var(--button-primary-border)}
+.view-panel{display:none}
+.view-panel.active{display:block}
+.timeline-board{display:flex;flex-direction:column;gap:14px}
+.timeline-project{border:1px solid var(--border);border-radius:22px;background:var(--card);box-shadow:var(--shadow);padding:18px}
+.timeline-project-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.timeline-toggle{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  background:var(--card);
+  transition:.2s ease;
+}
+.timeline-toggle:hover{background:var(--card-soft)}
+.timeline-toggle span{
+  display:inline-block;
+  transition:.2s ease;
+}
+.timeline-project.collapsed .timeline-list{display:none;}
+.timeline-project.collapsed .timeline-toggle span{transform:rotate(-90deg);}
+
+.timeline-project-title{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.timeline-project-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.client-grid{display:flex;flex-direction:column;gap:12px}
+.client-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 18px 16px;cursor:pointer;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;box-shadow:var(--shadow)}
+.client-card:hover{border-color:var(--border-strong);transform:translateY(-1px)}
+.client-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.client-main{display:flex;flex-direction:column;gap:5px;min-width:0}
+.client-name{font-size:20px;font-weight:700;letter-spacing:-.03em}
+.client-meta{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;font-size:11px;color:var(--muted);background:var(--surface-muted)}
+.right-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.badge{font-size:11px;padding:5px 10px;border-radius:999px;font-weight:700;white-space:nowrap}
+.badge-ok{background:var(--success-soft);color:var(--success)}
+.badge-warn{background:var(--warning-soft);color:var(--warning)}
+.badge-late{background:var(--danger-soft);color:var(--danger)}
+.badge-new{background:var(--info-soft);color:var(--info)}
+.badge-done{background:var(--done-bg);color:var(--done-text)}
+.deadline-txt,.task-txt{font-size:12px;color:var(--muted)}
+.people-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.people-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:var(--card-soft);font-size:12px;color:var(--text)}
+.people-chip .mini-avatar{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#dfd4c4;color:#423a31;font-size:10px;font-weight:700}
+.steps-labels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.step-lbl{font-size:10px;color:var(--muted);text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.step-lbl.active-lbl{color:var(--text);font-weight:700}
+.steps-track{display:flex;gap:6px;margin-bottom:12px}
+.step-segment{flex:1;height:8px;border-radius:999px;background:var(--progress-bg);overflow:hidden;position:relative}
+.step-fill{height:100%;background:var(--progress-fill);border-radius:999px;transition:width .3s ease}
+
+.step-fill.done{background:var(--progress-fill);}
+.step-fill.active{background:var(--progress-fill);}
+
+.client-footer{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;border-top:1px solid var(--border);padding-top:12px;flex-wrap:wrap}
+.note-block{display:flex;flex-direction:column;gap:10px;min-width:280px;max-width:62%}
+.note-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.note-preview{font-size:13px;color:var(--text);line-height:1.45;max-width:none;white-space:normal;overflow:visible;text-overflow:clip;font-style:normal;background:var(--surface-muted);border:1px solid var(--border);padding:10px 12px;border-radius:14px}
+.resp-row{display:flex;align-items:center;gap:8px}
+.avatar{width:30px;height:30px;border-radius:50%;background:#dfd4c4;color:#423a31;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.resp-name{font-size:12px;color:var(--muted)}
+.empty-state{text-align:center;padding:36px 24px;color:var(--muted);font-size:14px;border:1px dashed var(--border-strong);border-radius:var(--radius-lg);background:rgba(255,255,255,.4)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(20,18,16,.46);z-index:100;align-items:center;justify-content:center;padding:18px}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border-radius:24px;border:1px solid var(--border);padding:22px;width:min(820px,100%);max-height:92vh;overflow-y:auto;box-shadow:0 18px 40px rgba(0,0,0,.16)}
+.timeline-modal{width:min(760px,100%)}
+.timeline-list{display:flex;flex-direction:column;gap:12px}
+.timeline-item{display:grid;grid-template-columns:160px 1fr;gap:14px;padding:14px;border:1px solid var(--border);border-radius:18px;background:var(--surface-muted)}
+.timeline-time{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.02em}
+.timeline-content{display:flex;flex-direction:column;gap:6px}
+.timeline-type{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.timeline-text{font-size:14px;color:var(--text);line-height:1.45}
+.timeline-empty{padding:24px;border:1px dashed var(--border-strong);border-radius:18px;color:var(--muted);text-align:center;background:var(--surface-muted)}
+.timeline-group{border:1px solid var(--border);border-radius:18px;background:var(--surface-muted);overflow:hidden}
+.timeline-group summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700}
+.timeline-group summary::-webkit-details-marker{display:none}
+.timeline-group summary:hover{background:var(--card-soft)}
+.timeline-group-head{display:flex;flex-direction:column;gap:4px}
+.timeline-group-title{font-size:14px;color:var(--text)}
+.timeline-group-sub{font-size:12px;color:var(--muted);font-weight:600}
+.timeline-group-icon{font-size:14px;color:var(--muted);transition:transform .18s ease}
+.timeline-group[open] .timeline-group-icon{transform:rotate(90deg)}
+.timeline-group-body{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.modal-title{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.modal-subtitle{font-size:13px;color:var(--muted);margin-top:4px}
+.close-btn{background:none;border:none;font-size:26px;cursor:pointer;color:var(--muted);line-height:1;padding:0}
+.field-group{margin-bottom:14px}
+.field-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;font-weight:700}
+input[type=text],input[type=date],select,textarea{width:100%;border:1px solid var(--border);border-radius:14px;padding:11px 12px;font-size:14px;background:var(--input-bg);color:var(--text);font-family:inherit;outline:none;transition:border-color .15s ease, box-shadow .15s ease, background .25s ease, color .25s ease}
+input[type=text]:focus,input[type=date]:focus,select:focus,textarea:focus{border-color:#8f7f69;box-shadow:0 0 0 4px rgba(143,127,105,.10)}
+textarea{resize:vertical;min-height:90px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three-col{display:grid;grid-template-columns:1.1fr .9fr 1fr;gap:12px}
+.steps-select{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:4px}
+.step-opt{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px;border-radius:18px;border:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--text);transition:all .15s;background:var(--input-bg);min-height:94px;min-width:0;overflow:hidden}
+.step-opt:hover{background:#faf8f4}
+.step-opt.sel{border-color:var(--success);background:var(--success-soft);color:var(--success)}
+.step-opt.past{opacity:.7}
+.step-opt.locked{opacity:.48;cursor:not-allowed}
+.step-opt.locked:hover{background:#fff}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--card-soft);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-weight:700;white-space:normal;line-height:1.25;overflow-wrap:anywhere}
+.step-state{font-size:11px;color:inherit;opacity:.8;white-space:normal;line-height:1.3}
+.checklist-card{border:1px solid var(--border);border-radius:18px;padding:14px;background:var(--surface-muted)}
+.checklist-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.checklist-title{font-size:13px;font-weight:700}
+.checklist-sub{font-size:12px;color:var(--muted)}
+.checklist{display:flex;flex-direction:column;gap:7px}
+.check-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text);cursor:pointer;padding:8px 10px;border-radius:12px;background:var(--input-bg);border:1px solid var(--border)}
+.check-item input{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.check-item.checked{color:var(--muted);text-decoration:line-through;opacity:.72}
+.add-check-row{display:flex;gap:8px;margin-top:12px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap}
+.del-btn{margin-right:auto;font-size:12px;padding:10px 14px;border-radius:999px;border:1px solid var(--danger);background:transparent;color:var(--danger);cursor:pointer;font-weight:700}
+.del-btn:hover{background:var(--danger-soft)}
+.helper-txt{font-size:12px;color:var(--muted);margin-top:4px}
+.kbd{display:inline-flex;padding:2px 7px;border-radius:999px;background:var(--card-soft);font-size:11px;color:var(--muted)}
+
+.btn-complete,
+button.complete,
+button[data-state="complete"],
+.view-tab.complete{
+  background:var(--button-complete-bg);
+  color:var(--button-complete-text);
+  border-color:var(--button-complete-border);
+}
+html[data-theme="dark"] .btn-complete,
+html[data-theme="dark"] button.complete,
+html[data-theme="dark"] button[data-state="complete"],
+html[data-theme="dark"] .view-tab.complete{
+  color:#1A1D20 !important;
+}
+.metric,.client-card,.timeline-project,.modal,.timeline-group,.checklist-card,.timeline-item{
+  background:var(--card);
+  border-color:var(--border);
+}
+.note-preview,.pill,.timeline-group,.checklist-card,.timeline-item,.empty-state{
+  background:var(--surface-muted);
+}
+.timeline-toggle{
+  color:var(--text);
+  border-color:var(--border);
+  background:var(--card);
+}
+.timeline-toggle:hover{background:var(--card-soft)}
+
+@media (max-width:900px){
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .steps-select{grid-template-columns:1fr 1fr}
+  .three-col,.two-col{grid-template-columns:1fr}
+  .right-meta{align-items:flex-start}
+  .client-top{flex-direction:column}
+  .client-footer{align-items:flex-start}
+  .note-preview{max-width:100%}
+  .timeline-item{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:20px 14px 32px}
+  .metrics{grid-template-columns:1fr}
+  .steps-labels,.steps-track{grid-template-columns:1fr}
+  .step-lbl{text-align:left}
+}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div id="auth-gate" class="gate-screen">
+  <div class="gate-card">
+    <div class="gate-form">
+      <input type="text" id="gate-email" placeholder="Login">
+      <input type="password" id="gate-password" placeholder="Senha">
+      <button class="btn btn-primary" type="button" onclick="gateLogin()">Entrar</button>
+      <div id="gate-msg" class="helper-txt gate-msg"></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <h2 style="position:absolute;left:-9999px">Dashboard completo de projetos RECON</h2>
+
+  <div class="topbar">
+    <div class="brand-block">
+      <div class="logo-wrap">
+        <img id="brand-logo" class="logo-mark" alt="RECON" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzcwIiBoZWlnaHQ9IjEyNSIgdmlld0JveD0iMCAwIDM3MCAxMjUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00OS44OTQ0IDExOC4yNjJDNDkuNDA1MiAxMTguMjkzIDQ4LjYzNzMgMTE4LjI5MyA0OC4zNjQyIDExOC4yOTNINDcuMDc4N1YxMjQuNjYzSDQ0LjAxNTZWMTA3LjU5NUg0OS42NTI2QzUzLjcyNTQgMTA3LjU5NSA1Ni4wMjM1IDEwOS42MzggNTYuMDIzNSAxMTIuOTYxQzU2LjAyMzUgMTE1LjUyMiA1NC42NDQxIDExNy4wNzYgNTIuNzQ3IDExNy42MjVMNTYuNTQzOSAxMjQuNjY2SDUzLjI2NzVMNDkuODk3MiAxMTguMjY0TDQ5Ljg5NDQgMTE4LjI2MlpNNDkuNzA5NSAxMTUuODg0QzUxLjc2MyAxMTUuODg0IDUyLjg5NDkgMTE0Ljk3IDUyLjg5NDkgMTEzLjE0MkM1Mi44OTQ5IDExMS4zMTQgNTEuNzMxNyAxMTAuNCA0OS42NzgyIDExMC40SDQ3LjA3M1YxMTUuODg3SDQ5LjcwNjdMNDkuNzA5NSAxMTUuODg0WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTYxLjE5OTggMTA3LjU5Mkg3Mi41MzM2VjExMC40NTlINjQuMjYyOVYxMTQuNTEySDcwLjUxMTRWMTE3LjI4NUg2NC4yNjI5VjEyMS43OTZINzIuNjg3MlYxMjQuNjZINjEuMTk5OFYxMDcuNTkyWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTc3Ljc0MTEgMTA3LjU5Mkg4MC44MDQzVjEyNC42Nkg3Ny43NDExVjEwNy41OTJaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNOTcuMjIwNSAxMjQuNjZMODkuNTkyNiAxMTIuNDk5SDg5LjUwMTZDODkuNTAxNiAxMTIuNTMxIDg5LjUzMjkgMTE0LjQyMSA4OS41MzI5IDExNi4zNzFWMTI0LjY2SDg2LjUzMjNWMTA3LjU5Mkg4OS43NDlMOTcuMzc3IDExOS41MUg5Ny40MzY3Qzk3LjQzNjcgMTE5LjQ3OCA5Ny40MDU0IDExNy43NDEgOTcuNDA1NCAxMTUuOTEzVjEwNy41OTJIMTAwLjQzN1YxMjQuNjZIOTcuMjIwNVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xMTAuNzkzIDEyNC42NkwxMDQuNjk4IDEwNy41OTJIMTA4LjA5NkwxMTAuODI0IDExNS42MUMxMTIuMTcyIDExOS41NDEgMTEyLjc1MiAxMjEuNCAxMTIuNzg0IDEyMS40OTRIMTEyLjg3NUMxMTIuOTA2IDEyMS40MDMgMTEzLjQ1OCAxMTkuNTc1IDExNC44MDMgMTE1LjYxTDExNy41MjggMTA3LjU5MkgxMjAuNzEzTDExNC42NDkgMTI0LjY2SDExMC43OUgxMTAuNzkzWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyNS4wMDggMTA3LjU5MkgxMzYuMzQxVjExMC40NTlIMTI4LjA3MVYxMTQuNTEySDEzNC4zMTlWMTE3LjI4NUgxMjguMDcxVjEyMS43OTZIMTM2LjQ5NVYxMjQuNjZIMTI1LjAwOFYxMDcuNTkyWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTE1Mi4yNCAxMjQuNjZMMTQ0LjYxMiAxMTIuNDk5SDE0NC41MjFDMTQ0LjUyMSAxMTIuNTMxIDE0NC41NTIgMTE0LjQyMSAxNDQuNTUyIDExNi4zNzFWMTI0LjY2SDE0MS41NTJWMTA3LjU5MkgxNDQuNzY5TDE1Mi4zOTYgMTE5LjUxSDE1Mi40NTZDMTUyLjQ1NiAxMTkuNDc4IDE1Mi40MjUgMTE3Ljc0MSAxNTIuNDI1IDExNS45MTNWMTA3LjU5MkgxNTUuNDU3VjEyNC42NkgxNTIuMjRaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMTY4LjM4MyAxMTAuNDU5VjEyNC42NjNIMTY1LjMyVjExMC40NTlIMTYwLjE0NFYxMDcuNTkySDE3My41OTFWMTEwLjQ1OUgxNjguMzgzWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTIwMS41MjkgMTIwLjA1OUMyMDAuMzM0IDEyMy4wMTYgMTk3Ljk3NiAxMjQuOTk3IDE5NC4yNyAxMjQuOTk3QzE4OS40NjEgMTI0Ljk5NyAxODYuMTUzIDEyMS43MDYgMTg2LjE1MyAxMTYuMTI4QzE4Ni4xNTMgMTEwLjU0OSAxODkuNDMgMTA3LjI1OCAxOTQuMjM5IDEwNy4yNThDMTk3LjU0NyAxMDcuMjU4IDIwMC4zMzQgMTA4LjgxMiAyMDEuNDY5IDExMi4zMThMMTk4LjU5MSAxMTMuMDhDMTk4LjE5MiAxMTIuMTk3IDE5Ny4xNTEgMTEwLjA5NCAxOTQuMjcgMTEwLjA5NEMxOTEuMjA3IDExMC4wOTQgMTg5LjI3NiAxMTIuMzQ5IDE4OS4yNzYgMTE2LjA2OEMxODkuMjc2IDEyMC4wNjEgMTkxLjI2NyAxMjIuMTY0IDE5NC4yNyAxMjIuMTY0QzE5Ni40NzUgMTIyLjE2NCAxOTcuODg1IDEyMC45NzYgMTk4LjYxOSAxMTkuMjk3TDIwMS41MjkgMTIwLjA1OVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yMTMuNTA1IDEwNy4yNThDMjE4LjIyNCAxMDcuMjU4IDIyMS41NjMgMTEwLjUxOCAyMjEuNTYzIDExNi4xMjhDMjIxLjU2MyAxMjEuNzM3IDIxOC4yMjQgMTI0Ljk5NyAyMTMuNTA1IDEyNC45OTdDMjA4Ljc4NyAxMjQuOTk3IDIwNS40MTkgMTIxLjcwNiAyMDUuNDE5IDExNi4xMjhDMjA1LjQxOSAxMTAuNTQ5IDIwOC43NTggMTA3LjI1OCAyMTMuNTA1IDEwNy4yNThaTTIxMy41MDUgMTIyLjE2MUMyMTYuNDQ2IDEyMi4xNjEgMjE4LjQzNyAxMjAuMDI4IDIxOC40MzcgMTE2LjEyNUMyMTguNDM3IDExMi4yMjIgMjE2LjQ0NiAxMTAuMDkxIDIxMy41MDUgMTEwLjA5MUMyMTAuNTY0IDExMC4wOTEgMjA4LjU0MiAxMTIuMjI1IDIwOC41NDIgMTE2LjEyNUMyMDguNTQyIDEyMC4wMjUgMjEwLjUzMyAxMjIuMTYxIDIxMy41MDUgMTIyLjE2MVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yMzcgMTI0LjY2TDIyOS4zNzMgMTEyLjQ5OUgyMjkuMjgxQzIyOS4yODEgMTEyLjUzMSAyMjkuMzEzIDExNC40MjEgMjI5LjMxMyAxMTYuMzcxVjEyNC42NkgyMjYuMzEyVjEwNy41OTJIMjI5LjUyOUwyMzcuMTU3IDExOS41MUgyMzcuMjE5QzIzNy4yMTkgMTE5LjQ3OCAyMzcuMTg4IDExNy43NDEgMjM3LjE4OCAxMTUuOTEzVjEwNy41OTJIMjQwLjIyVjEyNC42NkgyMzdaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjYwLjM0MiAxMjAuMDU5QzI1OS4xNDggMTIzLjAxNiAyNTYuNzkgMTI0Ljk5NyAyNTMuMDg0IDEyNC45OTdDMjQ4LjI3NSAxMjQuOTk3IDI0NC45NjcgMTIxLjcwNiAyNDQuOTY3IDExNi4xMjhDMjQ0Ljk2NyAxMTAuNTQ5IDI0OC4yNDMgMTA3LjI1OCAyNTMuMDUzIDEwNy4yNThDMjU2LjM2IDEwNy4yNTggMjU5LjE0OCAxMDguODEyIDI2MC4yODIgMTEyLjMxOEwyNTcuNDA0IDExMy4wOEMyNTcuMDA2IDExMi4xOTcgMjU1Ljk2NSAxMTAuMDk0IDI1My4wODQgMTEwLjA5NEMyNTAuMDIxIDExMC4wOTQgMjQ4LjA5IDExMi4zNDkgMjQ4LjA5IDExNi4wNjhDMjQ4LjA5IDEyMC4wNjEgMjUwLjA4MSAxMjIuMTY0IDI1My4wODQgMTIyLjE2NEMyNTUuMjg4IDEyMi4xNjQgMjU2LjY5OSAxMjAuOTc2IDI1Ny40MzMgMTE5LjI5N0wyNjAuMzQyIDEyMC4wNTlaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjY0Ljk3IDEwNy41OTJIMjc2LjMwM1YxMTAuNDU5SDI2OC4wMzNWMTE0LjUxMkgyNzQuMjgxVjExNy4yODVIMjY4LjAzM1YxMjEuNzk2SDI3Ni40NTdWMTI0LjY2SDI2NC45N1YxMDcuNTkyWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTI4Ni45OTQgMTA3LjU5MkMyOTEuMDA3IDEwNy41OTIgMjkzLjMzNCAxMDkuNjk1IDI5My4zMzQgMTEzLjE3QzI5My4zMzQgMTE2LjY0NiAyOTEuMDA1IDExOC42ODYgMjg2Ljk5NCAxMTguNjg2SDI4NC41NzRWMTI0LjY2SDI4MS41MTFWMTA3LjU5MkgyODYuOTk0Wk0yODcuMDU3IDExNi4xMjhDMjg5LjIzMyAxMTYuMTI4IDI5MC4yNzQgMTE1LjAzIDI5MC4yNzQgMTEzLjIzMkMyOTAuMjc0IDExMS40MzUgMjg5LjI2NCAxMTAuMzM3IDI4Ny4wNTcgMTEwLjMzN0gyODQuNTc3VjExNi4xMjhIMjg3LjA1N1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0zMDUuMDM3IDExMC40NTlWMTI0LjY2M0gzMDEuOTc0VjExMC40NTlIMjk2Ljc5OFYxMDcuNTkySDMxMC4yNDVWMTEwLjQ1OUgzMDUuMDM3WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTMxNi4yNDkgMTE5LjcyNUMzMTYuNDM0IDEyMS4zMSAzMTcuNjU3IDEyMi40OTggMzE5LjkyNCAxMjIuNDk4QzMyMS43MzIgMTIyLjQ5OCAzMjIuODk2IDEyMS43MDYgMzIyLjg5NiAxMjAuMTIxQzMyMi44OTYgMTE4LjAxOCAzMjAuOTA1IDExNy43MTIgMzE4LjI3MSAxMTYuOTUxQzMxNi4zMTIgMTE2LjM3MSAzMTMuNzk3IDExNS4zOTcgMzEzLjc5NyAxMTIuMDQ0QzMxMy43OTcgMTA4LjkwNSAzMTYuMDAyIDEwNy4yNTggMzE5LjY0OCAxMDcuMjU4QzMyMy4wMTggMTA3LjI1OCAzMjUuMjUzIDEwOC42OSAzMjUuODM0IDExMS40OTVMMzIzLjEzNyAxMTIuMTk3QzMyMi44MDIgMTEwLjY3NCAzMjEuNzg5IDEwOS43ODggMzE5Ljc5OCAxMDkuNzg4QzMxNy45OSAxMDkuNzg4IDMxNi45MiAxMTAuNTQ5IDMxNi45MiAxMTEuOTUzQzMxNi45MiAxMTMuNjkxIDMxOC40NSAxMTQuMTE4IDMyMC45MzMgMTE0Ljc4OUMzMjMuMDE1IDExNS4zOTcgMzI1Ljk4NyAxMTYuNDA1IDMyNS45ODcgMTIwLjA2MUMzMjUuOTg3IDEyMy40NzUgMzIzLjQ3NiAxMjUgMzE5LjkyMSAxMjVDMzE3LjE5NiAxMjUgMzE0LjAzOSAxMjQuMTE3IDMxMy40NTkgMTIwLjQ4OUwzMTYuMjQ2IDExOS43MjhMMzE2LjI0OSAxMTkuNzI1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTAgMS4wODExSDIwLjQwMDlDMzcuMzU0NyAxLjA4MTEgNDUuODc4NSAxMC4zNzUyIDQ1Ljg3ODUgMjMuNjM3QzQ1Ljg3ODUgMzAuMjIyNyA0Mi41MjI0IDM5LjUxNjcgMzQuMDAxNCA0My42NjU3QzM4LjgwOCA0Ny44MTQ2IDQwLjE2NzUgNTQuNDAzMSA0Ny43ODQgNTQuNDAzMUg1MC4zMjM4VjY0LjMyODJDNTAuMzIzOCA2NC4zMjgyIDQ3Ljk2NjEgNjQuODY4OCA0NC4yNDg4IDY0Ljg2ODhDMjguMzgxNSA2NC44Njg4IDI5LjI4ODcgNTAuMzQxOSAyMS41ODEyIDQ2LjAxMThDMjAuNDkxOSA0Ni4xMDI0IDE5LjQwNTQgNDYuMTAyNCAxOC4yMjUxIDQ2LjEwMjRIMTEuMjQyOFY2NC41MDY1SDBWMS4wODExWk0xMS4yNDI4IDExLjM2ODVWMzYuMThIMTkuNTg0NkMzMC4xMDIyIDM2LjE4IDMzLjcyODQgMzAuNTg3OCAzMy43Mjg0IDIzLjYzOTlDMzMuNzI4NCAxNi42OTE5IDMwLjE5MzIgMTEuMzY4NSAxOS41ODQ2IDExLjM2ODVIMTEuMjQyOFoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik03Ni45NzMyIDEuMDgxMUgxMTguNDA5VjExLjM2NTdIODguMjE2VjI5LjEzODdIMTE1LjU5OVYzOS4wNjM5SDg4LjIxNlY1NC4yMjE5SDExOC40MDlWNjQuNTA2NUg3Ni45NzMyVjEuMDgxMVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTkuMzczIDYwLjI2N0MxOTkuMzczIDYwLjI2NyAxOTEuMTIyIDY1LjU5MDUgMTc4LjE1NiA2NS41OTA1QzE1Ni41NzcgNjUuNTkwNSAxNDIuMjUxIDUxLjUxNjQgMTQyLjI1MSAzMi43NUMxNDIuMjUxIDEzLjk4MzUgMTU3Ljc1NSAwIDE3Ni42MTQgMEMxOTAuNTc2IDAgMTk5LjEgNS4xNDIzIDE5OS4xIDUuMTQyM0wxOTUuMiAxNC43MDUyQzE5NS4yIDE0LjcwNTIgMTg2Ljc2OCAxMC41NTYzIDE3OC41MTcgMTAuNTU2M0MxNjMuNTU3IDEwLjU1NjMgMTU0LjM5OSAxOS45MzgxIDE1NC4zOTkgMzIuOTMxMUMxNTQuMzk5IDQ1LjkyNDEgMTY0LjE5MSA1NS4wMzQyIDE3Ny40MjggNTUuMDM0MkMxODguMjE4IDU1LjAzNDIgMTk1LjkyMyA1MC43MDQxIDE5NS45MjMgNTAuNzA0MUwxOTkuMzY3IDYwLjI2N0gxOTkuMzczWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTI1My45NTEgMEMyNzMuNzE4IDAgMjg4LjA0NCAxMy44MDI0IDI4OC4wNDQgMzIuNzVDMjg4LjA0NCA1MS42OTc1IDI3My40NDUgNjUuNDk5OSAyNTMuOTUxIDY1LjQ5OTlDMjM0LjQ1OCA2NS40OTk5IDIxOS45NSA1MS41MTY0IDIxOS45NSAzMi43NUMyMTkuOTUgMTMuOTgzNSAyMzQuODIyIDAgMjUzLjk1MSAwWk0yNTQuMDQyIDU1LjY2NTNDMjY2LjM3NCA1NS42NjUzIDI3NS45ODUgNDUuODMwNyAyNzUuOTg1IDMyLjkzMTFDMjc1Ljk4NSAyMC4wMzE1IDI2Ni44MjcgMTAuMTA2MyAyNTQuMDQyIDEwLjEwNjNDMjQxLjI1OCAxMC4xMDYzIDIzMi4xIDE5Ljk0MDkgMjMyLjEgMzIuOTMxMUMyMzIuMSA0NS45MjEzIDI0MS43MSA1NS42NjUzIDI1NC4wNDIgNTUuNjY1M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0zMTkuMzE4IDAuNzIxNjc2TDM1OC43NTcgNDEuNTkxMlYxLjA4MTFIMzcwVjY0Ljk1NjVIMzY3LjAwOEwzMjcuMDIyIDI1LjE2ODFWNjQuNTAzN0gzMTUuNzhWMC43MjE2NzZIMzE5LjMxOFoiIGZpbGw9ImJsYWNrIi8+Cjwvc3ZnPgo=">
+      </div>
+      <div class="brand">Dashboard de Projetos</div>
+      <div class="page-title">Projetos em andamento</div>
+      <div class="page-subtitle">Um painel único para acompanhar clientes, etapas, responsáveis e checklist operacional do processo de marca.</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn theme-toggle" id="theme-toggle" type="button" onclick="toggleTheme()">Modo escuro</button>
+      <button class="btn btn-primary" onclick="openNew()">+ Novo projeto</button>
+    </div>
+  </div>
+
+  <div class="auth-panel" id="auth-panel">
+    <div class="auth-card auth-card-minimal">
+      <div class="auth-form-wrap">
+        <div class="auth-user-row" id="auth-user-row" style="display:none">
+          <span class="pill" id="auth-user-pill">Usuário conectado</span>
+          <button class="btn" type="button" onclick="handleSignOut()">Sair</button>
+        </div>
+        <div class="auth-form" id="auth-form">
+          <input type="text" id="auth-email" placeholder="Login">
+          <input type="password" id="auth-password" placeholder="Senha">
+          <div class="auth-actions">
+            <button class="btn btn-primary" type="button" onclick="handleSignIn()">Entrar</button>
+            <button class="btn" type="button" onclick="handleSignUp()">Criar conta</button>
+          </div>
+          <div class="helper-txt auth-message-minimal" id="auth-message"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-switcher">
+    <button class="dashboard-tab active" id="dashboard-tab-projects" type="button" onclick="switchDashboard('projects')">Dashboard de Projetos</button>
+    <button class="dashboard-tab" id="dashboard-tab-demands" type="button" onclick="switchDashboard('demands')">Dashboard de Demandas</button>
+  </div>
+
+  <div class="dashboard-panel active" id="dashboard-projects">
+    <div class="metrics" id="metrics"></div>
+
+    <div class="view-tabs">
+    <button class="view-tab active" id="tab-pipeline" type="button" onclick="switchView('pipeline')">Pipeline de Projetos</button>
+    <button class="view-tab" id="tab-timeline" type="button" onclick="switchView('timeline')">Timeline</button>
+    <button class="view-tab" id="tab-completed" type="button" onclick="switchView('completed')">Projetos Concluídos</button>
+  </div>
+
+  <div class="view-panel active" id="panel-pipeline">
+    <div class="section-head">
+      <p class="section-label">Pipeline de projetos</p>
+      <p class="legend">Clique em um card para editar.</p>
+    </div>
+    <div class="client-grid" id="client-grid"></div>
+  </div>
+
+  <div class="view-panel" id="panel-timeline">
+    <div class="section-head">
+      <p class="section-label">Timeline</p>
+      <p class="legend">Histórico consolidado dos projetos, com grupos por etapa.</p>
+    </div>
+    <div class="timeline-board" id="timeline-board"></div>
+  </div>
+
+  <div class="view-panel" id="panel-completed">
+    <div class="section-head">
+      <p class="section-label">Projetos concluídos</p>
+      <p class="legend">Nesta área, apenas a etapa atual pode ser alterada.</p>
+    </div>
+    <div class="client-grid" id="completed-grid"></div>
+  </div>
+  </div>
+
+  <div class="dashboard-panel" id="dashboard-demands">
+    <div class="section-head">
+      <p class="section-label">Dashboard de demandas</p>
+      <p class="legend">As subtarefas da pipeline aparecem aqui como demandas-base. Subtarefas extras criadas aqui ficam somente neste dashboard.</p>
+    </div>
+    <div class="demands-board" id="demands-board"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-inner"></div>
+</div>
+
+
+<script>
+const STORAGE_KEY='recon_projects_v1';
+const THEME_KEY='recon_theme_v1';
+const SUPABASE_URL='https://witajevffeuvtvgyaeyp.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpdGFqZXZmZmV1dnR2Z3lhZXlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MTc5NTQsImV4cCI6MjA5MTE5Mzk1NH0.wVTXQghGE8SsxKx0q3hVJP13PWa8bILXUsNmYwmy6Yo';
+const SUPABASE_TABLE='recon_projects';
+const supabaseClient = (window.supabase && SUPABASE_URL !== 'COLE_AQUI_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'COLE_AQUI_SUPABASE_ANON_KEY')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+let authSession = null;
+const LOGO_LIGHT='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzcwIiBoZWlnaHQ9IjEyNSIgdmlld0JveD0iMCAwIDM3MCAxMjUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00OS44OTQ0IDExOC4yNjJDNDkuNDA1MiAxMTguMjkzIDQ4LjYzNzMgMTE4LjI5MyA0OC4zNjQyIDExOC4yOTNINDcuMDc4N1YxMjQuNjYzSDQ0LjAxNTZWMTA3LjU5NUg0OS42NTI2QzUzLjcyNTQgMTA3LjU5NSA1Ni4wMjM1IDEwOS42MzggNTYuMDIzNSAxMTIuOTYxQzU2LjAyMzUgMTE1LjUyMiA1NC42NDQxIDExNy4wNzYgNTIuNzQ3IDExNy42MjVMNTYuNTQzOSAxMjQuNjY2SDUzLjI2NzVMNDkuODk3MiAxMTguMjY0TDQ5Ljg5NDQgMTE4LjI2MlpNNDkuNzA5NSAxMTUuODg0QzUxLjc2MyAxMTUuODg0IDUyLjg5NDkgMTE0Ljk3IDUyLjg5NDkgMTEzLjE0MkM1Mi44OTQ5IDExMS4zMTQgNTEuNzMxNyAxMTAuNCA0OS42NzgyIDExMC40SDQ3LjA3M1YxMTUuODg3SDQ5LjcwNjdMNDkuNzA5NSAxMTUuODg0WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTYxLjE5OTggMTA3LjU5Mkg3Mi41MzM2VjExMC40NTlINjQuMjYyOVYxMTQuNTEySDcwLjUxMTRWMTE3LjI4NUg2NC4yNjI5VjEyMS43OTZINzIuNjg3MlYxMjQuNjZINjEuMTk5OFYxMDcuNTkyWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTc3Ljc0MTEgMTA3LjU5Mkg4MC44MDQzVjEyNC42Nkg3Ny43NDExVjEwNy41OTJaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNOTcuMjIwNSAxMjQuNjZMODkuNTkyNiAxMTIuNDk5SDg5LjUwMTZDODkuNTAxNiAxMTIuNTMxIDg5LjUzMjkgMTE0LjQyMSA4OS41MzI5IDExNi4zNzFWMTI0LjY2SDg2LjUzMjNWMTA3LjU5Mkg4OS43NDlMOTcuMzc3IDExOS41MUg5Ny40MzY3Qzk3LjQzNjcgMTE5LjQ3OCA5Ny40MDU0IDExNy43NDEgOTcuNDA1NCAxMTUuOTEzVjEwNy41OTJIMTAwLjQzN1YxMjQuNjZIOTcuMjIwNVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xMTAuNzkzIDEyNC42NkwxMDQuNjk4IDEwNy41OTJIMTA4LjA5NkwxMTAuODI0IDExNS42MUMxMTIuMTcyIDExOS41NDEgMTEyLjc1MiAxMjEuNCAxMTIuNzg0IDEyMS40OTRIMTEyLjg3NUMxMTIuOTA2IDEyMS40MDMgMTEzLjQ1OCAxMTkuNTc1IDExNC44MDMgMTE1LjYxTDExNy41MjggMTA3LjU5MkgxMjAuNzEzTDExNC42NDkgMTI0LjY2SDExMC43OUgxMTAuNzkzWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyNS4wMDggMTA3LjU5MkgxMzYuMzQxVjExMC40NTlIMTI4LjA3MVYxMTQuNTEySDEzNC4zMTlWMTE3LjI4NUgxMjguMDcxVjEyMS43OTZIMTM2LjQ5NVYxMjQuNjZIMTI1LjAwOFYxMDcuNTkyWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTE1Mi4yNCAxMjQuNjZMMTQ0LjYxMiAxMTIuNDk5SDE0NC41MjFDMTQ0LjUyMSAxMTIuNTMxIDE0NC41NTIgMTE0LjQyMSAxNDQuNTUyIDExNi4zNzFWMTI0LjY2SDE0MS41NTJWMTA3LjU5MkgxNDQuNzY5TDE1Mi4zOTYgMTE5LjUxSDE1Mi40NTZDMTUyLjQ1NiAxMTkuNDc4IDE1Mi40MjUgMTE3Ljc0MSAxNTIuNDI1IDExNS45MTNWMTA3LjU5MkgxNTUuNDU3VjEyNC42NkgxNTIuMjRaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMTY4LjM4MyAxMTAuNDU5VjEyNC42NjNIMTY1LjMyVjExMC40NTlIMTYwLjE0NFYxMDcuNTkySDE3My41OTFWMTEwLjQ1OUgxNjguMzgzWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTIwMS41MjkgMTIwLjA1OUMyMDAuMzM0IDEyMy4wMTYgMTk3Ljk3NiAxMjQuOTk3IDE5NC4yNyAxMjQuOTk3QzE4OS40NjEgMTI0Ljk5NyAxODYuMTUzIDEyMS43MDYgMTg2LjE1MyAxMTYuMTI4QzE4Ni4xNTMgMTEwLjU0OSAxODkuNDMgMTA3LjI1OCAxOTQuMjM5IDEwNy4yNThDMTk3LjU0NyAxMDcuMjU4IDIwMC4zMzQgMTA4LjgxMiAyMDEuNDY5IDExMi4zMThMMTk4LjU5MSAxMTMuMDhDMTk4LjE5MiAxMTIuMTk3IDE5Ny4xNTEgMTEwLjA5NCAxOTQuMjcgMTEwLjA5NEMxOTEuMjA3IDExMC4wOTQgMTg5LjI3NiAxMTIuMzQ5IDE4OS4yNzYgMTE2LjA2OEMxODkuMjc2IDEyMC4wNjEgMTkxLjI2NyAxMjIuMTY0IDE5NC4yNyAxMjIuMTY0QzE5Ni40NzUgMTIyLjE2NCAxOTcuODg1IDEyMC45NzYgMTk4LjYxOSAxMTkuMjk3TDIwMS41MjkgMTIwLjA1OVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yMTMuNTA1IDEwNy4yNThDMjE4LjIyNCAxMDcuMjU4IDIyMS41NjMgMTEwLjUxOCAyMjEuNTYzIDExNi4xMjhDMjIxLjU2MyAxMjEuNzM3IDIxOC4yMjQgMTI0Ljk5NyAyMTMuNTA1IDEyNC45OTdDMjA4Ljc4NyAxMjQuOTk3IDIwNS40MTkgMTIxLjcwNiAyMDUuNDE5IDExNi4xMjhDMjA1LjQxOSAxMTAuNTQ5IDIwOC43NTggMTA3LjI1OCAyMTMuNTA1IDEwNy4yNThaTTIxMy41MDUgMTIyLjE2MUMyMTYuNDQ2IDEyMi4xNjEgMjE4LjQzNyAxMjAuMDI4IDIxOC40MzcgMTE2LjEyNUMyMTguNDM3IDExMi4yMjIgMjE2LjQ0NiAxMTAuMDkxIDIxMy41MDUgMTEwLjA5MUMyMTAuNTY0IDExMC4wOTEgMjA4LjU0MiAxMTIuMjI1IDIwOC41NDIgMTE2LjEyNUMyMDguNTQyIDEyMC4wMjUgMjEwLjUzMyAxMjIuMTYxIDIxMy41MDUgMTIyLjE2MVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yMzcgMTI0LjY2TDIyOS4zNzMgMTEyLjQ5OUgyMjkuMjgxQzIyOS4yODEgMTEyLjUzMSAyMjkuMzEzIDExNC40MjEgMjI5LjMxMyAxMTYuMzcxVjEyNC42NkgyMjYuMzEyVjEwNy41OTJIMjI5LjUyOUwyMzcuMTU3IDExOS41MUgyMzcuMjE5QzIzNy4yMTkgMTE5LjQ3OCAyMzcuMTg4IDExNy43NDEgMjM3LjE4OCAxMTUuOTEzVjEwNy41OTJIMjQwLjIyVjEyNC42NkgyMzdaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjYwLjM0MiAxMjAuMDU5QzI1OS4xNDggMTIzLjAxNiAyNTYuNzkgMTI0Ljk5NyAyNTMuMDg0IDEyNC45OTdDMjQ4LjI3NSAxMjQuOTk3IDI0NC45NjcgMTIxLjcwNiAyNDQuOTY3IDExNi4xMjhDMjQ0Ljk2NyAxMTAuNTQ5IDI0OC4yNDMgMTA3LjI1OCAyNTMuMDUzIDEwNy4yNThDMjU2LjM2IDEwNy4yNTggMjU5LjE0OCAxMDguODEyIDI2MC4yODIgMTEyLjMxOEwyNTcuNDA0IDExMy4wOEMyNTcuMDA2IDExMi4xOTcgMjU1Ljk2NSAxMTAuMDk0IDI1My4wODQgMTEwLjA5NEMyNTAuMDIxIDExMC4wOTQgMjQ4LjA5IDExMi4zNDkgMjQ4LjA5IDExNi4wNjhDMjQ4LjA5IDEyMC4wNjEgMjUwLjA4MSAxMjIuMTY0IDI1My4wODQgMTIyLjE2NEMyNTUuMjg4IDEyMi4xNjQgMjU2LjY5OSAxMjAuOTc2IDI1Ny40MzMgMTE5LjI5N0wyNjAuMzQyIDEyMC4wNTlaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjY0Ljk3IDEwNy41OTJIMjc2LjMwM1YxMTAuNDU5SDI2OC4wMzNWMTE0LjUxMkgyNzQuMjgxVjExNy4yODVIMjY4LjAzM1YxMjEuNzk2SDI3Ni40NTdWMTI0LjY2SDI2NC45N1YxMDcuNTkyWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTI4Ni45OTQgMTA3LjU5MkMyOTEuMDA3IDEwNy41OTIgMjkzLjMzNCAxMDkuNjk1IDI5My4zMzQgMTEzLjE3QzI5My4zMzQgMTE2LjY0NiAyOTEuMDA1IDExOC42ODYgMjg2Ljk5NCAxMTguNjg2SDI4NC41NzRWMTI0LjY2SDI4MS41MTFWMTA3LjU5MkgyODYuOTk0Wk0yODcuMDU3IDExNi4xMjhDMjg5LjIzMyAxMTYuMTI4IDI5MC4yNzQgMTE1LjAzIDI5MC4yNzQgMTEzLjIzMkMyOTAuMjc0IDExMS40MzUgMjg5LjI2NCAxMTAuMzM3IDI4Ny4wNTcgMTEwLjMzN0gyODQuNTc3VjExNi4xMjhIMjg3LjA1N1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0zMDUuMDM3IDExMC40NTlWMTI0LjY2M0gzMDEuOTc0VjExMC40NTlIMjk2Ljc5OFYxMDcuNTkySDMxMC4yNDVWMTEwLjQ1OUgzMDUuMDM3WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTMxNi4yNDkgMTE5LjcyNUMzMTYuNDM0IDEyMS4zMSAzMTcuNjU3IDEyMi40OTggMzE5LjkyNCAxMjIuNDk4QzMyMS43MzIgMTIyLjQ5OCAzMjIuODk2IDEyMS43MDYgMzIyLjg5NiAxMjAuMTIxQzMyMi44OTYgMTE4LjAxOCAzMjAuOTA1IDExNy43MTIgMzE4LjI3MSAxMTYuOTUxQzMxNi4zMTIgMTE2LjM3MSAzMTMuNzk3IDExNS4zOTcgMzEzLjc5NyAxMTIuMDQ0QzMxMy43OTcgMTA4LjkwNSAzMTYuMDAyIDEwNy4yNTggMzE5LjY0OCAxMDcuMjU4QzMyMy4wMTggMTA3LjI1OCAzMjUuMjUzIDEwOC42OSAzMjUuODM0IDExMS40OTVMMzIzLjEzNyAxMTIuMTk3QzMyMi44MDIgMTEwLjY3NCAzMjEuNzg5IDEwOS43ODggMzE5Ljc5OCAxMDkuNzg4QzMxNy45OSAxMDkuNzg4IDMxNi45MiAxMTAuNTQ5IDMxNi45MiAxMTEuOTUzQzMxNi45MiAxMTMuNjkxIDMxOC40NSAxMTQuMTE4IDMyMC45MzMgMTE0Ljc4OUMzMjMuMDE1IDExNS4zOTcgMzI1Ljk4NyAxMTYuNDA1IDMyNS45ODcgMTIwLjA2MUMzMjUuOTg3IDEyMy40NzUgMzIzLjQ3NiAxMjUgMzE5LjkyMSAxMjVDMzE3LjE5NiAxMjUgMzE0LjAzOSAxMjQuMTE3IDMxMy40NTkgMTIwLjQ4OUwzMTYuMjQ2IDExOS43MjhMMzE2LjI0OSAxMTkuNzI1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTAgMS4wODExSDIwLjQwMDlDMzcuMzU0NyAxLjA4MTEgNDUuODc4NSAxMC4zNzUyIDQ1Ljg3ODUgMjMuNjM3QzQ1Ljg3ODUgMzAuMjIyNyA0Mi41MjI0IDM5LjUxNjcgMzQuMDAxNCA0My42NjU3QzM4LjgwOCA0Ny44MTQ2IDQwLjE2NzUgNTQuNDAzMSA0Ny43ODQgNTQuNDAzMUg1MC4zMjM4VjY0LjMyODJDNTAuMzIzOCA2NC4zMjgyIDQ3Ljk2NjEgNjQuODY4OCA0NC4yNDg4IDY0Ljg2ODhDMjguMzgxNSA2NC44Njg4IDI5LjI4ODcgNTAuMzQxOSAyMS41ODEyIDQ2LjAxMThDMjAuNDkxOSA0Ni4xMDI0IDE5LjQwNTQgNDYuMTAyNCAxOC4yMjUxIDQ2LjEwMjRIMTEuMjQyOFY2NC41MDY1SDBWMS4wODExWk0xMS4yNDI4IDExLjM2ODVWMzYuMThIMTkuNTg0NkMzMC4xMDIyIDM2LjE4IDMzLjcyODQgMzAuNTg3OCAzMy43Mjg0IDIzLjYzOTlDMzMuNzI4NCAxNi42OTE5IDMwLjE5MzIgMTEuMzY4NSAxOS41ODQ2IDExLjM2ODVIMTEuMjQyOFoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik03Ni45NzMyIDEuMDgxMUgxMTguNDA5VjExLjM2NTdIODguMjE2VjI5LjEzODdIMTE1LjU5OVYzOS4wNjM5SDg4LjIxNlY1NC4yMjE5SDExOC40MDlWNjQuNTA2NUg3Ni45NzMyVjEuMDgxMVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTkuMzczIDYwLjI2N0MxOTkuMzczIDYwLjI2NyAxOTEuMTIyIDY1LjU5MDUgMTc4LjE1NiA2NS41OTA1QzE1Ni41NzcgNjUuNTkwNSAxNDIuMjUxIDUxLjUxNjQgMTQyLjI1MSAzMi43NUMxNDIuMjUxIDEzLjk4MzUgMTU3Ljc1NSAwIDE3Ni42MTQgMEMxOTAuNTc2IDAgMTk5LjEgNS4xNDIzIDE5OS4xIDUuMTQyM0wxOTUuMiAxNC43MDUyQzE5NS4yIDE0LjcwNTIgMTg2Ljc2OCAxMC41NTYzIDE3OC41MTcgMTAuNTU2M0MxNjMuNTU3IDEwLjU1NjMgMTU0LjM5OSAxOS45MzgxIDE1NC4zOTkgMzIuOTMxMUMxNTQuMzk5IDQ1LjkyNDEgMTY0LjE5MSA1NS4wMzQyIDE3Ny40MjggNTUuMDM0MkMxODguMjE4IDU1LjAzNDIgMTk1LjkyMyA1MC43MDQxIDE5NS45MjMgNTAuNzA0MUwxOTkuMzY3IDYwLjI2N0gxOTkuMzczWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTI1My45NTEgMEMyNzMuNzE4IDAgMjg4LjA0NCAxMy44MDI0IDI4OC4wNDQgMzIuNzVDMjg4LjA0NCA1MS42OTc1IDI3My40NDUgNjUuNDk5OSAyNTMuOTUxIDY1LjQ5OTlDMjM0LjQ1OCA2NS40OTk5IDIxOS45NSA1MS41MTY0IDIxOS45NSAzMi43NUMyMTkuOTUgMTMuOTgzNSAyMzQuODIyIDAgMjUzLjk1MSAwWk0yNTQuMDQyIDU1LjY2NTNDMjY2LjM3NCA1NS42NjUzIDI3NS45ODUgNDUuODMwNyAyNzUuOTg1IDMyLjkzMTFDMjc1Ljk4NSAyMC4wMzE1IDI2Ni44MjcgMTAuMTA2MyAyNTQuMDQyIDEwLjEwNjNDMjQxLjI1OCAxMC4xMDYzIDIzMi4xIDE5Ljk0MDkgMjMyLjEgMzIuOTMxMUMyMzIuMSA0NS45MjEzIDI0MS43MSA1NS42NjUzIDI1NC4wNDIgNTUuNjY1M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0zMTkuMzE4IDAuNzIxNjc2TDM1OC43NTcgNDEuNTkxMlYxLjA4MTFIMzcwVjY0Ljk1NjVIMzY3LjAwOEwzMjcuMDIyIDI1LjE2ODFWNjQuNTAzN0gzMTUuNzhWMC43MjE2NzZIMzE5LjMxOFoiIGZpbGw9ImJsYWNrIi8+Cjwvc3ZnPgo=';
+const LOGO_DARK='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzcwIiBoZWlnaHQ9IjEyNSIgdmlld0JveD0iMCAwIDM3MCAxMjUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00OS44OTQ0IDExOC4yNjJDNDkuNDA1MiAxMTguMjkzIDQ4LjYzNzMgMTE4LjI5MyA0OC4zNjQyIDExOC4yOTNINDcuMDc4N1YxMjQuNjYzSDQ0LjAxNTZWMTA3LjU5NUg0OS42NTI2QzUzLjcyNTQgMTA3LjU5NSA1Ni4wMjM1IDEwOS42MzggNTYuMDIzNSAxMTIuOTYxQzU2LjAyMzUgMTE1LjUyMiA1NC42NDQxIDExNy4wNzYgNTIuNzQ3IDExNy42MjVMNTYuNTQzOSAxMjQuNjY2SDUzLjI2NzVMNDkuODk3MiAxMTguMjY0TDQ5Ljg5NDQgMTE4LjI2MlpNNDkuNzA5NSAxMTUuODg0QzUxLjc2MyAxMTUuODg0IDUyLjg5NDkgMTE0Ljk3IDUyLjg5NDkgMTEzLjE0MkM1Mi44OTQ5IDExMS4zMTQgNTEuNzMxNyAxMTAuNCA0OS42NzgyIDExMC40SDQ3LjA3M1YxMTUuODg3SDQ5LjcwNjdMNDkuNzA5NSAxMTUuODg0WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTYxLjE5OTggMTA3LjU5Mkg3Mi41MzM2VjExMC40NTlINjQuMjYyOVYxMTQuNTEySDcwLjUxMTRWMTE3LjI4NUg2NC4yNjI5VjEyMS43OTZINzIuNjg3MlYxMjQuNjZINjEuMTk5OFYxMDcuNTkyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTc3Ljc0MTEgMTA3LjU5Mkg4MC44MDQzVjEyNC42Nkg3Ny43NDExVjEwNy41OTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNOTcuMjIwNSAxMjQuNjZMODkuNTkyNiAxMTIuNDk5SDg5LjUwMTZDODkuNTAxNiAxMTIuNTMxIDg5LjUzMjkgMTE0LjQyMSA4OS41MzI5IDExNi4zNzFWMTI0LjY2SDg2LjUzMjNWMTA3LjU5Mkg4OS43NDlMOTcuMzc3IDExOS41MUg5Ny40MzY3Qzk3LjQzNjcgMTE5LjQ3OCA5Ny40MDU0IDExNy43NDEgOTcuNDA1NCAxMTUuOTEzVjEwNy41OTJIMTAwLjQzN1YxMjQuNjZIOTcuMjIwNVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMTAuNzkzIDEyNC42NkwxMDQuNjk4IDEwNy41OTJIMTA4LjA5NkwxMTAuODI0IDExNS42MUMxMTIuMTcyIDExOS41NDEgMTEyLjc1MiAxMjEuNCAxMTIuNzg0IDEyMS40OTRIMTEyLjg3NUMxMTIuOTA2IDEyMS40MDMgMTEzLjQ1OCAxMTkuNTc1IDExNC44MDMgMTE1LjYxTDExNy41MjggMTA3LjU5MkgxMjAuNzEzTDExNC42NDkgMTI0LjY2SDExMC43OUgxMTAuNzkzWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEyNS4wMDggMTA3LjU5MkgxMzYuMzQxVjExMC40NTlIMTI4LjA3MVYxMTQuNTEySDEzNC4zMTlWMTE3LjI4NUgxMjguMDcxVjEyMS43OTZIMTM2LjQ5NVYxMjQuNjZIMTI1LjAwOFYxMDcuNTkyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE1Mi4yNCAxMjQuNjZMMTQ0LjYxMiAxMTIuNDk5SDE0NC41MjFDMTQ0LjUyMSAxMTIuNTMxIDE0NC41NTIgMTE0LjQyMSAxNDQuNTUyIDExNi4zNzFWMTI0LjY2SDE0MS41NTJWMTA3LjU5MkgxNDQuNzY5TDE1Mi4zOTYgMTE5LjUxSDE1Mi40NTZDMTUyLjQ1NiAxMTkuNDc4IDE1Mi40MjUgMTE3Ljc0MSAxNTIuNDI1IDExNS45MTNWMTA3LjU5MkgxNTUuNDU3VjEyNC42NkgxNTIuMjRaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTY4LjM4MyAxMTAuNDU5VjEyNC42NjNIMTY1LjMyVjExMC40NTlIMTYwLjE0NFYxMDcuNTkySDE3My41OTFWMTEwLjQ1OUgxNjguMzgzWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTIwMS41MjkgMTIwLjA1OUMyMDAuMzM0IDEyMy4wMTYgMTk3Ljk3NiAxMjQuOTk3IDE5NC4yNyAxMjQuOTk3QzE4OS40NjEgMTI0Ljk5NyAxODYuMTUzIDEyMS43MDYgMTg2LjE1MyAxMTYuMTI4QzE4Ni4xNTMgMTEwLjU0OSAxODkuNDMgMTA3LjI1OCAxOTQuMjM5IDEwNy4yNThDMTk3LjU0NyAxMDcuMjU4IDIwMC4zMzQgMTA4LjgxMiAyMDEuNDY5IDExMi4zMThMMTk4LjU5MSAxMTMuMDhDMTk4LjE5MiAxMTIuMTk3IDE5Ny4xNTEgMTEwLjA5NCAxOTQuMjcgMTEwLjA5NEMxOTEuMjA3IDExMC4wOTQgMTg5LjI3NiAxMTIuMzQ5IDE4OS4yNzYgMTE2LjA2OEMxODkuMjc2IDEyMC4wNjEgMTkxLjI2NyAxMjIuMTY0IDE5NC4yNyAxMjIuMTY0QzE5Ni40NzUgMTIyLjE2NCAxOTcuODg1IDEyMC45NzYgMTk4LjYxOSAxMTkuMjk3TDIwMS41MjkgMTIwLjA1OVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMTMuNTA1IDEwNy4yNThDMjE4LjIyNCAxMDcuMjU4IDIyMS41NjMgMTEwLjUxOCAyMjEuNTYzIDExNi4xMjhDMjIxLjU2MyAxMjEuNzM3IDIxOC4yMjQgMTI0Ljk5NyAyMTMuNTA1IDEyNC45OTdDMjA4Ljc4NyAxMjQuOTk3IDIwNS40MTkgMTIxLjcwNiAyMDUuNDE5IDExNi4xMjhDMjA1LjQxOSAxMTAuNTQ5IDIwOC43NTggMTA3LjI1OCAyMTMuNTA1IDEwNy4yNThaTTIxMy41MDUgMTIyLjE2MUMyMTYuNDQ2IDEyMi4xNjEgMjE4LjQzNyAxMjAuMDI4IDIxOC40MzcgMTE2LjEyNUMyMTguNDM3IDExMi4yMjIgMjE2LjQ0NiAxMTAuMDkxIDIxMy41MDUgMTEwLjA5MUMyMTAuNTY0IDExMC4wOTEgMjA4LjU0MiAxMTIuMjI1IDIwOC41NDIgMTE2LjEyNUMyMDguNTQyIDEyMC4wMjUgMjEwLjUzMyAxMjIuMTYxIDIxMy41MDUgMTIyLjE2MVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMzcgMTI0LjY2TDIyOS4zNzMgMTEyLjQ5OUgyMjkuMjgxQzIyOS4yODEgMTEyLjUzMSAyMjkuMzEzIDExNC40MjEgMjI5LjMxMyAxMTYuMzcxVjEyNC42NkgyMjYuMzEyVjEwNy41OTJIMjI5LjUyOUwyMzcuMTU3IDExOS41MUgyMzcuMjE5QzIzNy4yMTkgMTE5LjQ3OCAyMzcuMTg4IDExNy43NDEgMjM3LjE4OCAxMTUuOTEzVjEwNy41OTJIMjQwLjIyVjEyNC42NkgyMzdaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjYwLjM0MiAxMjAuMDU5QzI1OS4xNDggMTIzLjAxNiAyNTYuNzkgMTI0Ljk5NyAyNTMuMDg0IDEyNC45OTdDMjQ4LjI3NSAxMjQuOTk3IDI0NC45NjcgMTIxLjcwNiAyNDQuOTY3IDExNi4xMjhDMjQ0Ljk2NyAxMTAuNTQ5IDI0OC4yNDMgMTA3LjI1OCAyNTMuMDUzIDEwNy4yNThDMjU2LjM2IDEwNy4yNTggMjU5LjE0OCAxMDguODEyIDI2MC4yODIgMTEyLjMxOEwyNTcuNDA0IDExMy4wOEMyNTcuMDA2IDExMi4xOTcgMjU1Ljk2NSAxMTAuMDk0IDI1My4wODQgMTEwLjA5NEMyNTAuMDIxIDExMC4wOTQgMjQ4LjA5IDExMi4zNDkgMjQ4LjA5IDExNi4wNjhDMjQ4LjA5IDEyMC4wNjEgMjUwLjA4MSAxMjIuMTY0IDI1My4wODQgMTIyLjE2NEMyNTUuMjg4IDEyMi4xNjQgMjU2LjY5OSAxMjAuOTc2IDI1Ny40MzMgMTE5LjI5N0wyNjAuMzQyIDEyMC4wNTlaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjY0Ljk3IDEwNy41OTJIMjc2LjMwM1YxMTAuNDU5SDI2OC4wMzNWMTE0LjUxMkgyNzQuMjgxVjExNy4yODVIMjY4LjAzM1YxMjEuNzk2SDI3Ni40NTdWMTI0LjY2SDI2NC45N1YxMDcuNTkyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI4Ni45OTQgMTA3LjU5MkMyOTEuMDA3IDEwNy41OTIgMjkzLjMzNCAxMDkuNjk1IDI5My4zMzQgMTEzLjE3QzI5My4zMzQgMTE2LjY0NiAyOTEuMDA1IDExOC42ODYgMjg2Ljk5NCAxMTguNjg2SDI4NC41NzRWMTI0LjY2SDI4MS41MTFWMTA3LjU5MkgyODYuOTk0Wk0yODcuMDU3IDExNi4xMjhDMjg5LjIzMyAxMTYuMTI4IDI5MC4yNzQgMTE1LjAzIDI5MC4yNzQgMTEzLjIzMkMyOTAuMjc0IDExMS40MzUgMjg5LjI2NCAxMTAuMzM3IDI4Ny4wNTcgMTEwLjMzN0gyODQuNTc3VjExNi4xMjhIMjg3LjA1N1oiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0zMDUuMDM3IDExMC40NTlWMTI0LjY2M0gzMDEuOTc0VjExMC40NTlIMjk2Ljc5OFYxMDcuNTkySDMxMC4yNDVWMTEwLjQ1OUgzMDUuMDM3WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTMxNi4yNDkgMTE5LjcyNUMzMTYuNDM0IDEyMS4zMSAzMTcuNjU3IDEyMi40OTggMzE5LjkyNCAxMjIuNDk4QzMyMS43MzIgMTIyLjQ5OCAzMjIuODk2IDEyMS43MDYgMzIyLjg5NiAxMjAuMTIxQzMyMi44OTYgMTE4LjAxOCAzMjAuOTA1IDExNy43MTIgMzE4LjI3MSAxMTYuOTUxQzMxNi4zMTIgMTE2LjM3MSAzMTMuNzk3IDExNS4zOTcgMzEzLjc5NyAxMTIuMDQ0QzMxMy43OTcgMTA4LjkwNSAzMTYuMDAyIDEwNy4yNTggMzE5LjY0OCAxMDcuMjU4QzMyMy4wMTggMTA3LjI1OCAzMjUuMjUzIDEwOC42OSAzMjUuODM0IDExMS40OTVMMzIzLjEzNyAxMTIuMTk3QzMyMi44MDIgMTEwLjY3NCAzMjEuNzg5IDEwOS43ODggMzE5Ljc5OCAxMDkuNzg4QzMxNy45OSAxMDkuNzg4IDMxNi45MiAxMTAuNTQ5IDMxNi45MiAxMTEuOTUzQzMxNi45MiAxMTMuNjkxIDMxOC40NSAxMTQuMTE4IDMyMC45MzMgMTE0Ljc4OUMzMjMuMDE1IDExNS4zOTcgMzI1Ljk4NyAxMTYuNDA1IDMyNS45ODcgMTIwLjA2MUMzMjUuOTg3IDEyMy40NzUgMzIzLjQ3NiAxMjUgMzE5LjkyMSAxMjVDMzE3LjE5NiAxMjUgMzE0LjAzOSAxMjQuMTE3IDMxMy40NTkgMTIwLjQ4OUwzMTYuMjQ2IDExOS43MjhMMzE2LjI0OSAxMTkuNzI1WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTAgMS4wODExSDIwLjQwMDlDMzcuMzU0NyAxLjA4MTEgNDUuODc4NSAxMC4zNzUyIDQ1Ljg3ODUgMjMuNjM3QzQ1Ljg3ODUgMzAuMjIyNyA0Mi41MjI0IDM5LjUxNjcgMzQuMDAxNCA0My42NjU3QzM4LjgwOCA0Ny44MTQ2IDQwLjE2NzUgNTQuNDAzMSA0Ny43ODQgNTQuNDAzMUg1MC4zMjM4VjY0LjMyODJDNTAuMzIzOCA2NC4zMjgyIDQ3Ljk2NjEgNjQuODY4OCA0NC4yNDg4IDY0Ljg2ODhDMjguMzgxNSA2NC44Njg4IDI5LjI4ODcgNTAuMzQxOSAyMS41ODEyIDQ2LjAxMThDMjAuNDkxOSA0Ni4xMDI0IDE5LjQwNTQgNDYuMTAyNCAxOC4yMjUxIDQ2LjEwMjRIMTEuMjQyOFY2NC41MDY1SDBWMS4wODExWk0xMS4yNDI4IDExLjM2ODVWMzYuMThIMTkuNTg0NkMzMC4xMDIyIDM2LjE4IDMzLjcyODQgMzAuNTg3OCAzMy43Mjg0IDIzLjYzOTlDMzMuNzI4NCAxNi42OTE5IDMwLjE5MzIgMTEuMzY4NSAxOS41ODQ2IDExLjM2ODVIMTEuMjQyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik03Ni45NzMyIDEuMDgxMUgxMTguNDA5VjExLjM2NTdIODguMjE2VjI5LjEzODdIMTE1LjU5OVYzOS4wNjM5SDg4LjIxNlY1NC4yMjE5SDExOC40MDlWNjQuNTA2NUg3Ni45NzMyVjEuMDgxMVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xOTkuMzczIDYwLjI2N0MxOTkuMzczIDYwLjI2NyAxOTEuMTIyIDY1LjU5MDUgMTc4LjE1NiA2NS41OTA1QzE1Ni41NzcgNjUuNTkwNSAxNDIuMjUxIDUxLjUxNjQgMTQyLjI1MSAzMi43NUMxNDIuMjUxIDEzLjk4MzUgMTU3Ljc1NSAwIDE3Ni42MTQgMEMxOTAuNTc2IDAgMTk5LjEgNS4xNDIzIDE5OS4xIDUuMTQyM0wxOTUuMiAxNC43MDUyQzE5NS4yIDE0LjcwNTIgMTg2Ljc2OCAxMC41NTYzIDE3OC41MTcgMTAuNTU2M0MxNjMuNTU3IDEwLjU1NjMgMTU0LjM5OSAxOS45MzgxIDE1NC4zOTkgMzIuOTMxMUMxNTQuMzk5IDQ1LjkyNDEgMTY0LjE5MSA1NS4wMzQyIDE3Ny40MjggNTUuMDM0MkMxODguMjE4IDU1LjAzNDIgMTk1LjkyMyA1MC43MDQxIDE5NS45MjMgNTAuNzA0MUwxOTkuMzY3IDYwLjI2N0gxOTkuMzczWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI1My45NTEgMEMyNzMuNzE4IDAgMjg4LjA0NCAxMy44MDI0IDI4OC4wNDQgMzIuNzVDMjg4LjA0NCA1MS42OTc1IDI3My40NDUgNjUuNDk5OSAyNTMuOTUxIDY1LjQ5OTlDMjM0LjQ1OCA2NS40OTk5IDIxOS45NSA1MS41MTY0IDIxOS45NSAzMi43NUMyMTkuOTUgMTMuOTgzNSAyMzQuODIyIDAgMjUzLjk1MSAwWk0yNTQuMDQyIDU1LjY2NTNDMjY2LjM3NCA1NS42NjUzIDI3NS45ODUgNDUuODMwNyAyNzUuOTg1IDMyLjkzMTFDMjc1Ljk4NSAyMC4wMzE1IDI2Ni44MjcgMTAuMTA2MyAyNTQuMDQyIDEwLjEwNjNDMjQxLjI1OCAxMC4xMDYzIDIzMi4xIDE5Ljk0MDkgMjMyLjEgMzIuOTMxMUMyMzIuMSA0NS45MjEzIDI0MS43MSA1NS42NjUzIDI1NC4wNDIgNTUuNjY1M1oiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0zMTkuMzE4IDAuNzIxNjc2TDM1OC43NTcgNDEuNTkxMlYxLjA4MTFIMzcwVjY0Ljk1NjVIMzY3LjAwOEwzMjcuMDIyIDI1LjE2ODFWNjQuNTAzN0gzMTUuNzhWMC43MjE2NzZIMzE5LjMxOFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=';
+
+const STEPS=[
+  {id:'onboarding',label:'Onboarding',full:'Onboarding'},
+  {id:'diagnostico',label:'Diagnóstico',full:'Diagnóstico'},
+  {id:'estrategia',label:'Estratégia',full:'Estratégia'},
+  {id:'identidade',label:'Identidade',full:'Identidade'},
+  {id:'entrega',label:'Entrega',full:'Entrega'},
+];
+const COMPLETED_STEP={id:'concluido',label:'Concluído',full:'Concluído'};
+const COMPLETED_STEP_INDEX=STEPS.length;
+
+const DEFAULT_CHECKS={
+  onboarding:[
+    'Dar boas-vindas no grupo do cliente',
+    'Enviar formulário investigativo',
+    'Criar cronograma',
+    'Agendar kickoff',
+    'Kickoff: apresentar cronograma',
+    'Kickoff: solicitar materiais da marca atual',
+    'Kickoff: entender público e produtos/serviços da empresa',
+    'Kickoff: solicitar contato de até 4 funcionários',
+    'Kickoff: solicitar contato de até 4 clientes',
+    'Kickoff: explicar dinâmica de entrevistas',
+    'Kickoff: enviar texto modelo para abordagem com clientes',
+  ],
+  diagnostico:[
+    'Entrevistar 04 clientes',
+    'Entrevistar 04 colaboradores',
+    'Criar questionários de Avaliação Institucional e Percepção de Marca',
+    'Enviar texto + link dos questionários',
+    'Entrevistar diretoria',
+    'Realizar Workshop de Marca',
+    'Desenvolver Diagnóstico de Marca',
+    'Apresentar Diagnóstico de Marca',
+    'Desenvolver Diretrizes Estratégicas da Marca',
+    'Apresentar Diretrizes Estratégicas da Marca',
+    'Desenvolver Plataforma de Marca',
+    'Apresentar Plataforma de Marca',
+  ],
+  estrategia:[
+    'Consolidar direcionamento estratégico',
+    'Validar posicionamento central',
+    'Definir proposta de valor e diferenciação',
+    'Refinar territórios narrativos da marca',
+  ],
+  identidade:[
+    'Desenvolvimento de Identidade Verbal',
+    'Desenvolvimento de Identidade Visual',
+    'Apresentação do Projeto de Identidade Visual',
+  ],
+  entrega:[
+    'Organizar arquivos finais',
+    'Realizar entrega do projeto',
+    'Confirmar recebimento e orientações finais',
+  ],
+};
+
+let projects=[];
+let tempStep=0;
+let tempChecks=[];
+let tempChecksByStep={};
+let activeView='pipeline';
+let modalLocked=false;
+let modalContextProjectId=null;
+
+let activeDashboard='projects';
+let demandsUiState={projects:{},steps:{}};
+
+
+function ensureDemandUiState(){
+  if(!demandsUiState || typeof demandsUiState!=='object') demandsUiState={projects:{},steps:{}};
+  if(!demandsUiState.projects) demandsUiState.projects={};
+  if(!demandsUiState.steps) demandsUiState.steps={};
+  return demandsUiState;
+}
+
+function isDemandsProjectCollapsed(projectId){
+  const state=ensureDemandUiState();
+  return !!state.projects[String(projectId)];
+}
+
+function setDemandsProjectCollapsed(projectId, collapsed){
+  const state=ensureDemandUiState();
+  state.projects[String(projectId)] = !!collapsed;
+}
+
+function isDemandsStepOpen(projectId, stepIndex, fallback=false){
+  const state=ensureDemandUiState();
+  const key=`${projectId}-${stepIndex}`;
+  if(Object.prototype.hasOwnProperty.call(state.steps, key)) return !!state.steps[key];
+  return !!fallback;
+}
+
+function setDemandsStepOpen(projectId, stepIndex, open){
+  const state=ensureDemandUiState();
+  state.steps[`${projectId}-${stepIndex}`] = !!open;
+}
+
+function handleDemandsStepToggle(projectId, stepIndex, el){
+  setDemandsStepOpen(projectId, stepIndex, !!el.open);
+}
+
+function switchDashboard(view){
+  activeDashboard = view === 'demands' ? 'demands' : 'projects';
+  const projectsTab=document.getElementById('dashboard-tab-projects');
+  const demandsTab=document.getElementById('dashboard-tab-demands');
+  const projectsPanel=document.getElementById('dashboard-projects');
+  const demandsPanel=document.getElementById('dashboard-demands');
+  if(projectsTab) projectsTab.classList.toggle('active', activeDashboard==='projects');
+  if(demandsTab) demandsTab.classList.toggle('active', activeDashboard==='demands');
+  if(projectsPanel) projectsPanel.classList.toggle('active', activeDashboard==='projects');
+  if(demandsPanel) demandsPanel.classList.toggle('active', activeDashboard==='demands');
+}
+
+
+function ensureDemandMap(project){
+  if(!project.demandsByStep || typeof project.demandsByStep!=='object') project.demandsByStep={};
+  return project.demandsByStep;
+}
+
+function getDemandParents(project, stepIndex){
+  const map = ensureDemandMap(project);
+  const key = String(stepIndex);
+  const baseChecks = Array.isArray(project.checksByStep?.[key]) ? project.checksByStep[key] : getChecksForStep(stepIndex);
+
+  if(!Array.isArray(map[key]) || !map[key].length){
+    map[key] = baseChecks.map(item=>({text:item.text,done:!!item.done,children:[],open:false}));
+  } else {
+    const existingTexts = new Set(map[key].map(item=>item.text));
+
+    baseChecks.forEach(item=>{
+      if(!existingTexts.has(item.text)){
+        map[key].push({text:item.text,done:!!item.done,children:[],open:false});
+      }
+    });
+
+    map[key].forEach(parent=>{
+      const matched = baseChecks.find(item=>item.text===parent.text);
+      if(matched) parent.done = !!matched.done;
+      if(!Array.isArray(parent.children)) parent.children = [];
+      if(typeof parent.open !== 'boolean') parent.open = false;
+    });
+  }
+
+  return map[key];
+}
+
+function syncDemandBaseToProject(project, stepIndex, parentIndex){
+  const parents = getDemandParents(project, stepIndex);
+  const parent = parents[parentIndex];
+  if(!parent) return;
+  const key = String(stepIndex);
+  if(!Array.isArray(project.checksByStep[key])) project.checksByStep[key] = [];
+  const target = project.checksByStep[key].find(item=>item.text===parent.text);
+  if(target) target.done = !!parent.done;
+  if(Number(project.step)===Number(stepIndex)){
+    project.checks = cloneChecks(project.checksByStep[key]);
+  }
+}
+
+function demandStepStats(project, stepIndex){
+  const parents = getDemandParents(project, stepIndex);
+  let total = 0;
+  let done = 0;
+  parents.forEach(parent=>{
+    total += 1;
+    if(parent.done) done += 1;
+    (parent.children||[]).forEach(child=>{
+      total += 1;
+      if(child.done) done += 1;
+    });
+  });
+  const percent = total ? Math.round((done/total)*100) : 0;
+  return {parents,total,done,percent};
+}
+
+function demandStats(project){
+  let parentTotal=0,parentDone=0,childTotal=0,childDone=0;
+  STEPS.forEach((step, stepIndex)=>{
+    const parents = getDemandParents(project, stepIndex);
+    parents.forEach(parent=>{
+      parentTotal += 1;
+      if(parent.done) parentDone += 1;
+      (parent.children||[]).forEach(child=>{
+        childTotal += 1;
+        if(child.done) childDone += 1;
+      });
+    });
+  });
+  return {parentTotal,parentDone,childTotal,childDone};
+}
+
+function toggleDemandsProject(projectId){
+  const projectEl=document.querySelector(`.demands-project[data-project-id="${projectId}"]`);
+  if(!projectEl) return;
+  const collapsed=!projectEl.classList.contains('collapsed');
+  projectEl.classList.toggle('collapsed', collapsed);
+  setDemandsProjectCollapsed(projectId, collapsed);
+}
+
+function renderDemandsBoard(){
+  const board=document.getElementById('demands-board');
+  if(!board) return;
+  const activeProjects=projects.filter(project=>!isProjectCompleted(project));
+  if(!activeProjects.length){
+    board.innerHTML='<div class="demand-empty">Nenhum projeto ativo para exibir demandas.</div>';
+    return;
+  }
+  board.innerHTML = activeProjects.map(project=>{
+    const stats=demandStats(project);
+    return `
+      <div class="demands-project ${isDemandsProjectCollapsed(project.id)?'collapsed':''}" data-project-id="${project.id}">
+        <div class="demands-project-head">
+          <div>
+            <div class="demands-project-title">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
+            <div class="demands-project-sub">${escapeHtml(project.projectCategory || '—')} · Etapa atual: ${escapeHtml(stepName(project.step))}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="demands-meta">
+              <span class="pill">Demandas-base: ${stats.parentDone}/${stats.parentTotal}</span>
+              <span class="pill">Subtarefas extras: ${stats.childDone}/${stats.childTotal}</span>
+            </div>
+            <div class="demands-project-toggle" onclick="toggleDemandsProject(${project.id})">
+              <span>›</span>
+            </div>
+          </div>
+        </div>
+        <div class="demands-step-list">
+          ${STEPS.map((step, stepIndex)=>{
+            const stepStats = demandStepStats(project, stepIndex);
+            const parents = stepStats.parents;
+            if(!parents.length) return '';
+            return `
+              <details class="demands-step" ${isDemandsStepOpen(project.id, stepIndex, stepIndex===project.step) ? 'open' : ''} ontoggle="handleDemandsStepToggle(${project.id}, ${stepIndex}, this)">
+                <summary>
+                  <div>
+                    <div class="demands-step-title">${escapeHtml(step.label)}</div>
+                    <div class="demands-step-sub">${stepStats.done}/${stepStats.total} demandas concluídas</div>
+                    <div class="demands-step-progress">
+                      <div class="demands-step-progress-track">
+                        <div class="demands-step-progress-fill" style="width:${stepStats.percent}%"></div>
+                      </div>
+                      <div class="demands-step-progress-text">${stepStats.percent}%</div>
+                    </div>
+                  </div>
+                  <span class="timeline-group-icon">›</span>
+                </summary>
+                <div class="demands-step-body">
+                  ${parents.map((parent,parentIndex)=>`
+                    <div class="demand-parent">
+                      <div class="demand-parent-head">
+                        <div class="demand-parent-main">
+                          <input type="checkbox" ${parent.done?'checked':''} onchange="toggleDemandParent(${project.id}, ${stepIndex}, ${parentIndex})">
+                          <div class="demand-parent-text ${parent.done?'done':''}">${escapeHtml(parent.text)}</div>
+                        </div>
+                      </div>
+                      <div class="demand-children">
+                        ${(parent.children||[]).map((child,childIndex)=>`
+                          <label class="demand-child">
+                            <input type="checkbox" ${child.done?'checked':''} onchange="toggleDemandChild(${project.id}, ${stepIndex}, ${parentIndex}, ${childIndex})">
+                            <span class="demand-child-text ${child.done?'done':''}">${escapeHtml(child.text)}</span>
+                          </label>
+                        `).join('')}
+                      </div>
+                      <div class="demand-add-row">
+                        <input type="text" id="demand-input-${project.id}-${stepIndex}-${parentIndex}" placeholder="Adicionar subtarefa desta demanda">
+                        <button class="btn btn-small" type="button" onclick="addDemandChild(${project.id}, ${stepIndex}, ${parentIndex})">Adicionar</button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </details>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleDemandParent(projectId, stepIndex, parentIndex){
+  const project = projects.find(item=>Number(item.id)===Number(projectId));
+  if(!project) return;
+  const parents = getDemandParents(project, stepIndex);
+  if(!parents[parentIndex]) return;
+  parents[parentIndex].done = !parents[parentIndex].done;
+  syncDemandBaseToProject(project, stepIndex, parentIndex);
+  persistProjects();
+  render();
+}
+
+function toggleDemandChild(projectId, stepIndex, parentIndex, childIndex){
+  const project = projects.find(item=>Number(item.id)===Number(projectId));
+  if(!project) return;
+  const parents = getDemandParents(project, stepIndex);
+  const child = parents[parentIndex]?.children?.[childIndex];
+  if(!child) return;
+  child.done = !child.done;
+  persistProjects();
+  render();
+}
+
+function addDemandChild(projectId, stepIndex, parentIndex){
+  const input = document.getElementById(`demand-input-${projectId}-${stepIndex}-${parentIndex}`);
+  const value = (input?.value || '').trim();
+  if(!value) return;
+  const project = projects.find(item=>Number(item.id)===Number(projectId));
+  if(!project) return;
+  const parents = getDemandParents(project, stepIndex);
+  if(!parents[parentIndex].children) parents[parentIndex].children = [];
+  parents[parentIndex].children.push({text:value, done:false});
+  if(input) input.value = '';
+  persistProjects();
+  render();
+}
+
+
+
+function hasSupabaseConfig(){
+  return !!supabaseClient;
+}
+
+function setAuthMessage(message='', isError=false){
+  const el=document.getElementById('auth-message');
+  if(!el) return;
+  el.textContent=message || '';
+  el.style.color=isError ? 'var(--danger)' : 'var(--muted)';
+}
+
+function renderAuthUI(){
+  const body=document.body;
+  const form=document.getElementById('auth-form');
+  const row=document.getElementById('auth-user-row');
+  const pill=document.getElementById('auth-user-pill');
+  const gate=document.getElementById('auth-gate');
+
+  if(!hasSupabaseConfig()){
+    body.classList.remove('app-locked');
+    if(form) form.style.display='none';
+    if(row) row.style.display='none';
+    if(gate) gate.style.display='none';
+    return;
+  }
+
+  if(authSession?.user){
+    body.classList.remove('app-locked');
+    if(form) form.style.display='none';
+    if(row) row.style.display='flex';
+    if(pill) pill.textContent=authSession.user.email || 'Usuário conectado';
+    if(gate) gate.style.display='none';
+  } else {
+    body.classList.add('app-locked');
+    if(form) form.style.display='none';
+    if(row) row.style.display='none';
+    if(gate) gate.style.display='flex';
+  }
+}
+
+async function refreshSession(){
+  if(!hasSupabaseConfig()) return null;
+  const { data, error } = await supabaseClient.auth.getSession();
+  if(error) throw error;
+  authSession = data.session || null;
+  renderAuthUI();
+  return authSession;
+}
+
+async function handleSignIn(){
+  if(!hasSupabaseConfig()) return;
+  const email=(document.getElementById('auth-email')?.value || '').trim();
+  const password=(document.getElementById('auth-password')?.value || '').trim();
+  if(!email || !password){
+    setAuthMessage('Preencha login e senha.', true);
+    return;
+  }
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if(error){
+    setAuthMessage(error.message || 'Não foi possível entrar.', true);
+    return;
+  }
+  setAuthMessage('');
+  await refreshSession();
+  await loadProjects();
+}
+
+async function handleSignUp(){
+  if(!hasSupabaseConfig()) return;
+  const email=(document.getElementById('auth-email')?.value || '').trim();
+  const password=(document.getElementById('auth-password')?.value || '').trim();
+  if(!email || !password){
+    setAuthMessage('Preencha login e senha.', true);
+    return;
+  }
+  const { error } = await supabaseClient.auth.signUp({ email, password });
+  if(error){
+    setAuthMessage(error.message || 'Não foi possível criar a conta.', true);
+    return;
+  }
+  setAuthMessage('Conta criada.');
+}
+
+async function handleSignOut(){
+  try{
+    if(hasSupabaseConfig()){
+      const { error } = await supabaseClient.auth.signOut();
+      if(error){
+        setAuthMessage(error.message || 'Não foi possível sair.', true);
+      }
+    }
+  }catch(error){
+    setAuthMessage('Não foi possível sair.', true);
+  }
+
+  authSession = null;
+  projects = [];
+  render();
+  renderAuthUI();
+
+  const gate=document.getElementById('auth-gate');
+  const gateMsg=document.getElementById('gate-msg');
+  const gateEmail=document.getElementById('gate-email');
+  const gatePassword=document.getElementById('gate-password');
+
+  if(gate) gate.style.display='flex';
+  if(gateMsg) gateMsg.textContent='';
+  if(gateEmail) gateEmail.value='';
+  if(gatePassword) gatePassword.value='';
+}
+
+async function loadProjectsFromSupabase(){
+  if(!hasSupabaseConfig() || !authSession?.user) return [];
+  const { data, error } = await supabaseClient
+    .from(SUPABASE_TABLE)
+    .select('project_data')
+    .order('updated_at', { ascending: true });
+  if(error) throw error;
+  return (data || []).map(row => normalizeProjectData(row.project_data || {}));
+}
+
+async function saveProjectsToSupabase(){
+  if(!hasSupabaseConfig() || !authSession?.user) return;
+  const rows = projects.map(project => ({
+    owner_id: authSession.user.id,
+    project_key: String(project.id),
+    project_data: project
+  }));
+  const { error } = await supabaseClient
+    .from(SUPABASE_TABLE)
+    .upsert(rows, { onConflict: 'owner_id,project_key' });
+  if(error) throw error;
+}
+
+async function deleteProjectFromSupabase(projectId){
+  if(!hasSupabaseConfig() || !authSession?.user) return;
+  const { error } = await supabaseClient
+    .from(SUPABASE_TABLE)
+    .delete()
+    .eq('owner_id', authSession.user.id)
+    .eq('project_key', String(projectId));
+  if(error) throw error;
+}
+
+async function loadProjects(){
+  try{
+    if(hasSupabaseConfig()){
+      await refreshSession();
+      if(authSession?.user){
+        projects = await loadProjectsFromSupabase();
+        render();
+        return;
+      }
+      projects = [];
+      render();
+      return;
+    }
+    await loadStorage();
+  }catch(error){
+    console.error(error);
+    setAuthMessage('Falha ao carregar dados.', true);
+    projects = [];
+    render();
+  }
+}
+
+async function persistProjects(){
+  try{
+    if(hasSupabaseConfig()){
+      await refreshSession();
+      if(authSession?.user){
+        await saveProjectsToSupabase();
+        return;
+      }
+    }
+    await saveStorage();
+  }catch(error){
+    console.error(error);
+    setAuthMessage('Falha ao salvar dados.', true);
+  }
+}
+
+
+async function gateLogin(){
+  const email=(document.getElementById('gate-email')?.value || '').trim();
+  const password=(document.getElementById('gate-password')?.value || '').trim();
+  const msg=document.getElementById('gate-msg');
+  if(msg){ msg.textContent=''; msg.style.color='var(--muted)'; }
+
+  if(!email || !password){
+    if(msg){ msg.textContent='Preencha login e senha.'; msg.style.color='var(--danger)'; }
+    return;
+  }
+  if(!hasSupabaseConfig()){
+    if(msg){ msg.textContent='Supabase não configurado.'; msg.style.color='var(--danger)'; }
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if(error){
+    if(msg){ msg.textContent=error.message || 'Acesso negado.'; msg.style.color='var(--danger)'; }
+    return;
+  }
+
+  if(msg) msg.textContent='';
+  await refreshSession();
+  await loadProjects();
+}
+
+function applyTheme(theme){
+  const resolved = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', resolved);
+  const logo = document.getElementById('brand-logo');
+  if(logo) logo.src = resolved === 'dark' ? LOGO_DARK : LOGO_LIGHT;
+  const toggle = document.getElementById('theme-toggle');
+  if(toggle) toggle.textContent = resolved === 'dark' ? 'Modo claro' : 'Modo escuro';
+}
+
+function getPreferredTheme(){
+  try{
+    const stored = localStorage.getItem(THEME_KEY);
+    if(stored==='dark' || stored==='light') return stored;
+  }catch(error){}
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function saveTheme(theme){
+  try{ localStorage.setItem(THEME_KEY, theme); }catch(error){}
+}
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  saveTheme(next);
+}
+
+
+function escapeHtml(text=''){
+  return String(text)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+function nowIso(){
+  return new Date().toISOString();
+}
+
+function formatDateTime(iso=''){
+  if(!iso) return '';
+  const d=new Date(iso);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function calculatePipelineDays(startIso,endIso){
+  const start=new Date(startIso||'');
+  const end=new Date(endIso||'');
+  if(Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+  const diff=end.getTime()-start.getTime();
+  return Math.max(1, Math.ceil(diff/86400000));
+}
+
+function formatPipelineDays(days){
+  if(days===null || days===undefined || days==='') return '';
+  return `${days} ${Number(days)===1?'dia':'dias'}`;
+}
+
+function createTimelineEntry(type,text,meta={}){
+  return {ts:nowIso(),type,text,...meta};
+}
+
+function ensureTimeline(project){
+  if(!Array.isArray(project.timeline)) project.timeline=[];
+  return project.timeline;
+}
+
+function nextId(){
+  return projects.length ? Math.max(...projects.map(p=>Number(p.id)||0))+1 : 1;
+}
+
+
+function isStepComplete(stepIndex, checksMap){
+  const key=String(Number(stepIndex)||0);
+  const list=(checksMap && checksMap[key]) ? checksMap[key] : getChecksForStep(stepIndex);
+  return !!(list.length && list.every(item=>item.done));
+}
+
+function getChecksForStep(stepIndex){
+  if(Number(stepIndex)===COMPLETED_STEP_INDEX) return [];
+  const stepId=STEPS[stepIndex]?.id;
+  return (DEFAULT_CHECKS[stepId]||[]).map(text=>({text,done:false}));
+}
+
+function cloneChecks(list=[]){
+  return list.map(item=>({text:item.text,done:!!item.done}));
+}
+
+function getAllSteps(){
+  return [...STEPS, COMPLETED_STEP];
+}
+
+function getStepDefinition(index){
+  return index===COMPLETED_STEP_INDEX ? COMPLETED_STEP : STEPS[index];
+}
+
+function areAllBaseStepsComplete(checksByStep={}){
+  return STEPS.every((step,index)=>{
+    const list=Array.isArray(checksByStep[String(index)]) ? checksByStep[String(index)] : [];
+    return list.length>0 && list.every(item=>!!item.done);
+  });
+}
+
+function shouldShowCompletedStep(data){
+  const stepNumber=Number(data?.step);
+  return areAllBaseStepsComplete(data?.checksByStep || {}) && stepNumber >= STEPS.length-1;
+}
+
+function getVisibleStepsForData(data){
+  return shouldShowCompletedStep(data) ? [...STEPS, COMPLETED_STEP] : [...STEPS];
+}
+
+function isProjectCompleted(project){
+  return Number(project?.step)===COMPLETED_STEP_INDEX;
+}
+
+
+function normalizeChecksByStep(project){
+  const map={};
+  if(project?.checksByStep && typeof project.checksByStep==='object'){
+    Object.keys(project.checksByStep).forEach(key=>{
+      map[key]=cloneChecks(project.checksByStep[key]||[]);
+    });
+  }
+  if(project?.checks && Array.isArray(project.checks) && project.checks.length){
+    const currentKey=String(Number(project.step)||0);
+    if(!map[currentKey] || !map[currentKey].length){
+      map[currentKey]=cloneChecks(project.checks);
+    }
+  }
+  return map;
+}
+
+function getTempChecksForStep(stepIndex){
+  const key=String(Number(stepIndex)||0);
+  if(!tempChecksByStep[key] || !tempChecksByStep[key].length){
+    tempChecksByStep[key]=getChecksForStep(stepIndex);
+  } else {
+    const existingTexts = new Set(tempChecksByStep[key].map(item => item.text));
+    getChecksForStep(stepIndex).forEach(item=>{
+      if(!existingTexts.has(item.text)){
+        tempChecksByStep[key].push({text:item.text,done:false});
+      }
+    });
+  }
+  tempChecks=cloneChecks(tempChecksByStep[key]);
+  return tempChecks;
+}
+
+function persistCurrentTempChecks(){
+  const key=String(Number(tempStep)||0);
+  tempChecksByStep[key]=cloneChecks(tempChecks||[]);
+}
+
+function initials(name='?'){
+  return name.split(',')[0].trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+}
+
+function parsePeople(value=''){
+  return value.split(',').map(item=>item.trim()).filter(Boolean);
+}
+
+function formatPeopleInline(value=''){
+  const people=parsePeople(value);
+  if(!people.length) return '<span class="pill">Sem contatos cadastrados</span>';
+  return people.map(person=>`<span class="people-chip"><span class="mini-avatar">${escapeHtml(initials(person))}</span>${escapeHtml(person)}</span>`).join('');
+}
+
+function daysLeft(dateString){
+  if(!dateString) return null;
+  const end=new Date(dateString+'T12:00');
+  const now=new Date();
+  if(Number.isNaN(end.getTime())) return null;
+  return Math.ceil((end-now)/864e5);
+}
+
+function fmtDate(dateString){
+  if(!dateString) return 'Sem prazo';
+  const d=new Date(dateString+'T12:00');
+  if(Number.isNaN(d.getTime())) return 'Sem prazo';
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function stepName(index){
+  return getStepDefinition(Number(index))?.label || 'Etapa';
+}
+
+function statusOf(project){
+  if(isProjectCompleted(project)) return {label:'Concluído',cls:'badge-done'};
+  if(project.step >= STEPS.length-1) return {label:'Finalização',cls:'badge-done'};
+  const diff=daysLeft(project.deadline);
+  if(diff===null) return {label:'Ativo',cls:'badge-new'};
+  if(diff < 0) return {label:'Atrasado',cls:'badge-late'};
+  if(diff <= 7) return {label:'Urgente',cls:'badge-warn'};
+  if(project.step===0) return {label:'Novo',cls:'badge-new'};
+  return {label:'No prazo',cls:'badge-ok'};
+}
+
+function progressOf(project){
+  if(isProjectCompleted(project)){
+    return {done:1,total:1,percent:100};
+  }
+  const total=project.checks?.length || 0;
+  const done=(project.checks||[]).filter(c=>c.done).length;
+  const percent=total ? Math.round((done/total)*100) : 0;
+  return {done,total,percent};
+}
+
+
+function normalizeProjectData(project){
+  const categoryMap={
+    '1':'Upgrade Visual',
+    '2':'Upgrade de Marca',
+    '3':'Upgrade Estratégico'
+  };
+  const normalized={...project};
+  normalized.projectCategory=categoryMap[String(project?.projectCategory)] || project?.projectCategory || 'Upgrade Visual';
+  normalized.timeline=Array.isArray(project?.timeline)?project.timeline:[];
+  normalized.createdAt=project?.createdAt || normalized.timeline?.[0]?.ts || nowIso();
+  normalized.completedAt=project?.completedAt || '';
+  normalized.pipelineDays=project?.pipelineDays ?? null;
+  normalized.demandsByStep=(project?.demandsByStep && typeof project.demandsByStep==='object') ? project.demandsByStep : {};
+
+  if(!normalized.checksByStep || typeof normalized.checksByStep!=='object'){
+    normalized.checksByStep = {};
+  }
+
+  STEPS.forEach((step, index)=>{
+    const key = String(index);
+    if(!Array.isArray(normalized.checksByStep[key]) || !normalized.checksByStep[key].length){
+      normalized.checksByStep[key] = getChecksForStep(index);
+    } else {
+      const existingTexts = new Set(normalized.checksByStep[key].map(item => item.text));
+      getChecksForStep(index).forEach(item => {
+        if(!existingTexts.has(item.text)){
+          normalized.checksByStep[key].push({ text:item.text, done:false });
+        }
+      });
+    }
+  });
+
+  const currentKey = String(Number(normalized.step)||0);
+  normalized.checks = cloneChecks(normalized.checksByStep[currentKey] || getChecksForStep(Number(normalized.step)||0));
+  return normalized;
+}
+
+
+function renderMetrics(){
+  const total=projects.length;
+  const active=projects.filter(p=>!isProjectCompleted(p) && p.step < STEPS.length-1).length;
+  const delivery=projects.filter(p=>!isProjectCompleted(p) && p.step === STEPS.length-1).length;
+  const completed=projects.filter(p=>isProjectCompleted(p)).length;
+  const urgent=projects.filter(p=>{
+    const dl=daysLeft(p.deadline);
+    return dl!==null && dl<=7 && !isProjectCompleted(p);
+  }).length;
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Projetos</div><div class="metric-val">${total}</div><div class="metric-sub">cadastros no painel</div></div>
+    <div class="metric"><div class="metric-label">Em andamento</div><div class="metric-val">${active}</div><div class="metric-sub">do onboarding à identidade</div></div>
+    <div class="metric"><div class="metric-label">Em entrega</div><div class="metric-val">${delivery}</div><div class="metric-sub">etapa final</div></div>
+    <div class="metric"><div class="metric-label">Concluídos</div><div class="metric-val">${completed}</div><div class="metric-sub">na aba final</div></div>
+  `;
+}
+
+function renderProjectCards(list, targetId, options={}){
+  const grid=document.getElementById(targetId);
+  if(!grid) return;
+  const isCompletedView=!!options.completedView;
+  if(!list.length){
+    grid.innerHTML=`<div class="empty-state">${isCompletedView?'Nenhum projeto concluído ainda.':'Nenhum projeto cadastrado.<br>Use o botão <span class="kbd">+ Novo projeto</span> para começar.'}</div>`;
+    return;
+  }
+
+  const sorted=[...list].sort((a,b)=>{
+    const da=daysLeft(a.deadline); const db=daysLeft(b.deadline);
+    const va=da===null?9999:da; const vb=db===null?9999:db;
+    return va-vb;
+  });
+
+  grid.innerHTML=sorted.map(project=>{
+    const st=statusOf(project);
+    const {done,total,percent}=progressOf(project);
+    const dl=daysLeft(project.deadline);
+    const dlTxt=dl===null ? 'Sem prazo definido' : dl<0 ? `${Math.abs(dl)} dias de atraso` : dl===0 ? 'Vence hoje' : dl===1 ? 'Vence amanhã' : `${dl} dias restantes`;
+    const completionInfo=isProjectCompleted(project) && project.pipelineDays ? `Finalizado em ${formatPipelineDays(project.pipelineDays)}` : '';
+    const currentStepProgress=isProjectCompleted(project)?100:(total ? percent : 0);
+    const visibleSteps=getVisibleStepsForData(project);
+    const pipelinePercent=Math.max(0,Math.min(100,Math.round((((Number(project.step)||0)+(currentStepProgress/100))/visibleSteps.length)*100)));
+    const dots=visibleSteps.map((step,i)=>{
+      let fill=0;
+      if(i < Number(project.step||0)) fill=100;
+      else if(i === Number(project.step||0)) fill=currentStepProgress;
+      let cls = '';
+      if (i < project.step) cls = 'done';
+      else if (i === project.step) cls = 'active';
+      return `
+    <div class="step-segment">
+      <div class="step-fill ${cls}" style="width:${fill}%"></div>
+    </div>
+  `;
+    }).join('');
+    const labels=visibleSteps.map((step,i)=>`<div class="step-lbl${i===project.step?' active-lbl':''}">${escapeHtml(step.label)}</div>`).join('');
+    return `
+      <div class="client-card" onclick="openEdit(${project.id}, '${isCompletedView?'completed':'pipeline'}')">
+        <div class="client-top">
+          <div class="client-main">
+            <div class="client-name">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
+            <div class="client-meta">
+              <span class="pill">Segmento: ${escapeHtml(project.segment || 'Não informado')}</span>
+              <span class="pill">${escapeHtml(project.projectCategory || '—')}</span>
+              <span class="pill">Etapa atual: ${escapeHtml(stepName(project.step))}</span>
+            </div>
+          </div>
+          <div class="right-meta">
+            <span class="badge ${st.cls}">${st.label}</span>
+            <span class="deadline-txt">${isProjectCompleted(project) && completionInfo ? completionInfo : `${dlTxt} · ${fmtDate(project.deadline)}`}</span>
+            <span class="task-txt">${isProjectCompleted(project)?`Projeto finalizado${project.completedAt?` em ${formatDateTime(project.completedAt)}`:''}`:`${done}/${total} tarefas · ${percent}% concluído`}</span>
+          </div>
+        </div>
+
+        <div class="people-row">${formatPeopleInline(project.clientPeople)}</div>
+
+        <div class="steps-labels" style="grid-template-columns:repeat(${visibleSteps.length},minmax(0,1fr));">${labels}</div>
+        <div class="steps-track">${dots}</div>
+
+        <div class="client-footer">
+          <div class="note-block">
+            <div>
+              <div class="note-label">Notas e próximos passos</div>
+              <div class="note-preview">${escapeHtml(project.note || 'Sem observações registradas.')}</div>
+            </div>
+            <div class="resp-row">
+              <div class="avatar">${escapeHtml(initials(project.responsible || '?'))}</div>
+              <span class="resp-name">Responsável: ${escapeHtml(project.responsible || 'Não definido')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderGrid(){
+  const activeProjects=projects.filter(project=>!isProjectCompleted(project));
+  renderProjectCards(activeProjects,'client-grid',{completedView:false});
+}
+
+function renderCompletedGrid(){
+  const completedProjects=projects.filter(project=>isProjectCompleted(project));
+  renderProjectCards(completedProjects,'completed-grid',{completedView:true});
+}
+
+function render(){
+  renderMetrics();
+  renderGrid();
+  renderCompletedGrid();
+  renderTimelineBoard();
+  renderDemandsBoard();
+  updateView();
+  switchDashboard(activeDashboard);
+}
+
+function switchView(view){
+  activeView = ['pipeline','timeline','completed'].includes(view) ? view : 'pipeline';
+  updateView();
+}
+
+function updateView(){
+  const pipelineActive = activeView === 'pipeline';
+  const timelineActive = activeView === 'timeline';
+  const completedActive = activeView === 'completed';
+  const pipelineTab=document.getElementById('tab-pipeline');
+  const timelineTab=document.getElementById('tab-timeline');
+  const completedTab=document.getElementById('tab-completed');
+  const pipelinePanel=document.getElementById('panel-pipeline');
+  const timelinePanel=document.getElementById('panel-timeline');
+  const completedPanel=document.getElementById('panel-completed');
+  if(pipelineTab) pipelineTab.classList.toggle('active', pipelineActive);
+  if(timelineTab) timelineTab.classList.toggle('active', timelineActive);
+  if(completedTab) completedTab.classList.toggle('active', completedActive);
+  if(pipelinePanel) pipelinePanel.classList.toggle('active', pipelineActive);
+  if(timelinePanel) timelinePanel.classList.toggle('active', timelineActive);
+  if(completedPanel) completedPanel.classList.toggle('active', completedActive);
+}
+
+function getTimelineGroups(project){
+  const items=[...(project.timeline||[])].sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+  const groups=[];
+  const generalItems=items.filter(item=>item.stepIndex===undefined || item.stepIndex===null);
+  const allSteps=getAllSteps();
+  const stepIndexesWithItems=allSteps
+    .map((step,index)=>index)
+    .filter(index=>items.some(item=>Number(item.stepIndex)===index));
+  const lastStepIndex=stepIndexesWithItems.length ? Math.max(...stepIndexesWithItems) : null;
+
+  if(generalItems.length){
+    groups.push({
+      key:'general',
+      title:'Geral',
+      subtitle:`${generalItems.length} registro${generalItems.length>1?'s':''}`,
+      open:false,
+      items:generalItems
+    });
+  }
+
+  allSteps.forEach((step,index)=>{
+    const stepItems=items.filter(item=>Number(item.stepIndex)===index);
+    if(stepItems.length){
+      const completed=stepItems.some(item=>item.type==='Etapa concluída');
+      groups.push({
+        key:`step-${index}`,
+        title:step.label,
+        subtitle:`${stepItems.length} registro${stepItems.length>1?'s':''}${completed?' · etapa concluída':''}`,
+        open:index===lastStepIndex,
+        items:stepItems
+      });
+    }
+  });
+  return groups;
+}
+
+function renderTimelineBoard(){
+  const board=document.getElementById('timeline-board');
+  if(!board) return;
+  if(!projects.length){
+    board.innerHTML='<div class="timeline-empty">Nenhum projeto cadastrado ainda.</div>';
+    return;
+  }
+  const sorted=[...projects].sort((a,b)=>{
+    const at=(a.timeline&&a.timeline.length)?new Date(a.timeline[a.timeline.length-1].ts).getTime():0;
+    const bt=(b.timeline&&b.timeline.length)?new Date(b.timeline[b.timeline.length-1].ts).getTime():0;
+    return bt-at;
+  });
+  board.innerHTML=sorted.map(project=>{
+    const groups=getTimelineGroups(project);
+    return `
+      <div class="timeline-project">
+        <div class="timeline-project-head">
+          <div>
+            <div class="timeline-project-title">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
+            <div class="timeline-project-sub">${escapeHtml(project.projectCategory || '—')} · Etapa atual: ${escapeHtml(stepName(project.step))}</div>
+          </div>
+          <div class="timeline-toggle" onclick="toggleProject(this)">
+            <span>›</span>
+          </div>
+        </div>
+        <div class="timeline-list">
+          ${groups.length ? groups.map(group=>`
+            <details class="timeline-group" ${group.open?'open':''}>
+              <summary>
+                <div class="timeline-group-head">
+                  <div class="timeline-group-title">${escapeHtml(group.title)}</div>
+                  <div class="timeline-group-sub">${escapeHtml(group.subtitle)}</div>
+                </div>
+                <span class="timeline-group-icon">›</span>
+              </summary>
+              <div class="timeline-group-body">
+                ${group.items.map(item=>`
+                  <div class="timeline-item">
+                    <div class="timeline-time">${formatDateTime(item.ts)}</div>
+                    <div class="timeline-content">
+                      <div class="timeline-type">${escapeHtml(item.type || 'Registro')}</div>
+                      <div class="timeline-text">${escapeHtml(item.text || '')}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </details>
+          `).join('') : '<div class="timeline-empty">Ainda não há registros na timeline deste projeto.</div>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function isDefaultChecklistItem(stepIndex, text){
+  const stepId=STEPS[stepIndex]?.id;
+  const defaults=DEFAULT_CHECKS[stepId] || [];
+  return defaults.includes(text);
+}
+
+function buildTimelineChanges(previousProject, payload){
+  const entries=[];
+  const nowTs=nowIso();
+  if(!previousProject){
+    entries.push(createTimelineEntry('Projeto','Projeto criado no dashboard.'));
+    entries.push(createTimelineEntry('Etapa',`Etapa inicial definida como ${stepName(payload.step)}.`,{stepIndex:Number(payload.step),stepLabel:stepName(payload.step)}));
+    if(payload.projectCategory) entries.push(createTimelineEntry('Projeto',`Tipo de projeto definido como ${payload.projectCategory}.`));
+    if(payload.responsible) entries.push(createTimelineEntry('Responsável',`Responsável definido: ${payload.responsible}.`));
+    if(payload.deadline) entries.push(createTimelineEntry('Prazo',`Data estimada de conclusão: ${fmtDate(payload.deadline)}.`));
+    if(payload.clientPeople) entries.push(createTimelineEntry('Cliente',`Contatos cadastrados: ${payload.clientPeople}.`));
+  } else {
+    const compareFields=[
+      ['projectName','Projeto', (v)=>`Nome do projeto atualizado para ${v}.`],
+      ['clientPeople','Cliente', (v)=>`Contatos da empresa atualizados: ${v || 'sem contatos cadastrados'}.`],
+      ['segment','Projeto', (v)=>`Segmento atualizado para ${v || 'não informado'}.`],
+      ['projectCategory','Projeto', (v)=>`Tipo de projeto atualizado para ${v}.`],
+      ['responsible','Responsável', (v)=>`Responsável atualizado para ${v || 'não definido'}.`],
+      ['deadline','Prazo', (v)=>`Data estimada de conclusão atualizada para ${v ? fmtDate(v) : 'sem prazo definido'}.`],
+      ['note','Notas', ()=>`Notas e próximos passos foram atualizados.`],
+    ];
+    compareFields.forEach(([field,type,message])=>{
+      if((previousProject[field]||'') !== (payload[field]||'')) entries.push(createTimelineEntry(type,message(payload[field])));
+    });
+    if(Number(previousProject.step)!==Number(payload.step)){
+      entries.push(createTimelineEntry('Etapa',`Etapa alterada de ${stepName(previousProject.step)} para ${stepName(payload.step)}.`,{stepIndex:Number(payload.step),stepLabel:stepName(payload.step)}));
+    }
+  }
+
+  const prevMap=previousProject?.checksByStep || {};
+  const nextMap=payload.checksByStep || {};
+  STEPS.forEach((step, index)=>{
+    const prevList=Array.isArray(prevMap[String(index)])?prevMap[String(index)]:[];
+    const nextList=Array.isArray(nextMap[String(index)])?nextMap[String(index)]:[];
+    const prevByText=new Map(prevList.map(item=>[item.text, !!item.done]));
+    const nextByText=new Map(nextList.map(item=>[item.text, !!item.done]));
+
+    nextList.forEach(item=>{
+      if(!prevByText.has(item.text) && !isDefaultChecklistItem(index, item.text)){
+        entries.push(createTimelineEntry('Subtarefa',`Subtarefa adicionada em ${step.label}: ${item.text}.`,{stepIndex:index,stepLabel:step.label}));
+      }
+    });
+
+    prevList.forEach(item=>{
+      if(!nextByText.has(item.text)){
+        entries.push(createTimelineEntry('Subtarefa',`Subtarefa removida de ${step.label}: ${item.text}.`,{stepIndex:index,stepLabel:step.label}));
+      }
+    });
+
+    nextList.forEach(item=>{
+      const prevDone=prevByText.has(item.text)?prevByText.get(item.text):false;
+      const nextDone=!!item.done;
+      if(prevDone!==nextDone){
+        entries.push(createTimelineEntry('Checklist',`${nextDone?'Checklist concluído':'Checklist desmarcado'} em ${step.label}: ${item.text}.`,{stepIndex:index,stepLabel:step.label}));
+      }
+    });
+
+    const prevComplete=prevList.length>0 && prevList.every(item=>!!item.done);
+    const nextComplete=nextList.length>0 && nextList.every(item=>!!item.done);
+    if(!prevComplete && nextComplete){
+      entries.push(createTimelineEntry('Etapa concluída',`Etapa ${step.label} concluída com ${nextList.length} subtarefa${nextList.length>1?'s':''}.`,{stepIndex:index,stepLabel:step.label}));
+    }
+  });
+
+  if(!isProjectCompleted(previousProject) && isProjectCompleted(payload)){
+    const completionTs=payload.completedAt || nowTs;
+    const pipelineDays=payload.pipelineDays ?? calculatePipelineDays(payload.createdAt || previousProject?.createdAt || nowTs, completionTs);
+    entries.push(createTimelineEntry('Conclusão',`Projeto concluído e movido para Projetos Concluídos após ${formatPipelineDays(pipelineDays)} na pipeline.`,{stepIndex:COMPLETED_STEP_INDEX,stepLabel:stepName(COMPLETED_STEP_INDEX),ts:completionTs}));
+  }
+
+  if(isProjectCompleted(previousProject) && !isProjectCompleted(payload)){
+    entries.push(createTimelineEntry('Conclusão',`Projeto retornou da aba Projetos Concluídos para a pipeline principal.`,{stepIndex:Number(payload.step),stepLabel:stepName(payload.step),ts:nowTs}));
+  }
+
+  return entries;
+}
+
+function openNew(){
+  tempStep=0;
+  tempChecksByStep={'0':getChecksForStep(0)};
+  tempChecks=cloneChecks(tempChecksByStep['0']);
+  modalLocked=false;
+  modalContextProjectId=null;
+  showModal(null);
+}
+
+function openEdit(id, source='pipeline'){
+  const project=projects.find(item=>Number(item.id)===Number(id));
+  if(!project) return;
+  tempStep=Number(project.step) || 0;
+  tempChecksByStep=normalizeChecksByStep(project);
+  tempChecks=getTempChecksForStep(tempStep);
+  modalLocked=source==='completed' && isProjectCompleted(project);
+  modalContextProjectId=project.id;
+  showModal(project);
+}
+
+function renderStepsOptions(){
+  const current=Number(tempStep) || 0;
+  const visibleSteps=getVisibleStepsForData({step:current,checksByStep:tempChecksByStep});
+  return visibleSteps.map((step,index)=>`
+    <div class="step-opt${index===current?' sel':index<current?' past':''}${modalLocked?' lockable':''}" onclick="selectStep(${index})">
+      <div class="step-num">${index+1}</div>
+      <div class="step-title">${escapeHtml(step.full)}</div>
+      <div class="step-state">${index===current?'Etapa atual':index<current?'Etapa anterior':'Próxima etapa'}</div>
+    </div>
+  `).join('');
+}
+
+function renderChecklist(){
+  const stepLabel=stepName(tempStep);
+  tempChecks=getTempChecksForStep(tempStep);
+  const isCompletedStep=Number(tempStep)===COMPLETED_STEP_INDEX;
+  const html=(tempChecks||[]).map((item,index)=>`
+    <label class="check-item${item.done?' checked':''}">
+      <input type="checkbox" ${item.done?'checked':''} ${modalLocked?'disabled':''} onchange="toggleCheck(${index})">
+      <span>${escapeHtml(item.text)}</span>
+    </label>
+  `).join('');
+
+  return `
+    <div class="checklist-card">
+      <div class="checklist-head">
+        <div>
+          <div class="checklist-title">Checklist da etapa: ${escapeHtml(stepLabel)}</div>
+          <div class="checklist-sub">${isCompletedStep?'Nenhum checklist operacional nesta etapa final.':(modalLocked?'Neste projeto concluído, apenas a etapa atual pode ser alterada.':'Você pode marcar as subtarefas e também adicionar itens específicos do projeto.')}</div>
+        </div>
+      </div>
+      <div class="checklist" id="checklist">${html || '<div class="helper-txt">Esta etapa não possui subtarefas disponíveis.</div>'}</div>
+      ${(!modalLocked && !isCompletedStep)?`<div class="add-check-row">
+        <input type="text" id="new-check-input" placeholder="Adicionar subtarefa personalizada">
+        <button class="btn btn-small" type="button" onclick="addCheckItem()">Adicionar</button>
+      </div>`:''}
+    </div>
+  `;
+}
+
+function showModal(project){
+  const isNew=!project;
+  const lockedAttr = modalLocked ? 'disabled' : '';
+  document.getElementById('modal-inner').innerHTML=`
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">${isNew?'Novo projeto':'Editar projeto'}</div>
+        <div class="modal-subtitle">${modalLocked?'Projeto concluído: apenas a etapa atual pode ser alterada.':'Cadastre os dados centrais do projeto e acompanhe a operação por etapa.'}</div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Nome do projeto</div>
+      <input type="text" id="f-project-name" value="${escapeHtml(project?.projectName || '')}" placeholder="Ex: Maria Motta" ${lockedAttr}>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Pessoas da empresa cliente</div>
+      <input type="text" id="f-client-people" value="${escapeHtml(project?.clientPeople || '')}" placeholder="Separe por vírgula. Ex: Maria Silva, João Pereira, Carla Souza" ${lockedAttr}>
+      <div class="helper-txt">Você pode inserir 1 ou mais nomes.</div>
+    </div>
+
+    <div class="three-col">
+      <div class="field-group">
+        <div class="field-label">Segmento da empresa</div>
+        <input type="text" id="f-segment" value="${escapeHtml(project?.segment || '')}" placeholder="Ex: Moda, Saúde, Imobiliário" ${lockedAttr}>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Tipo de projeto</div>
+        <select id="f-project-category" ${lockedAttr}>
+          ${['Upgrade Visual','Upgrade de Marca','Upgrade Estratégico'].map(option=>`<option value="${option}" ${String(project?.projectCategory||'Upgrade Visual')===option?'selected':''}>${option}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Responsável</div>
+        <input type="text" id="f-responsible" value="${escapeHtml(project?.responsible || '')}" placeholder="Nome do responsável interno" ${lockedAttr}>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="field-group">
+        <div class="field-label">Data estimada de conclusão</div>
+        <input type="date" id="f-deadline" value="${escapeHtml(project?.deadline || '')}" ${lockedAttr}>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Etapa atual</div>
+        <div class="steps-select">${renderStepsOptions()}</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Checklist operacional</div>
+      ${renderChecklist()}
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Notas e próximos passos</div>
+      <textarea id="f-note" placeholder="Pendências, decisões, contexto importante, links e próximos movimentos." ${lockedAttr}>${escapeHtml(project?.note || '')}</textarea>
+    </div>
+
+    <div class="modal-footer">
+      ${(!isNew && !modalLocked)?`<button class="del-btn" onclick="deleteProject(${project.id})">Remover projeto</button>`:''}
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProject(${project?.id ?? 'null'})">Salvar</button>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function refreshModalPartial(){
+  const stepsBox=document.querySelector('.steps-select');
+  if(stepsBox) stepsBox.innerHTML=renderStepsOptions();
+  const checklistCard=document.querySelector('.checklist-card');
+  if(checklistCard){
+    checklistCard.outerHTML=renderChecklist();
+  }
+}
+
+
+function selectStep(index){
+  const current=Number(tempStep)||0;
+  persistCurrentTempChecks();
+
+  if(index > current){
+    const currentComplete=isStepComplete(current, tempChecksByStep);
+    if(!currentComplete){
+      alert('Conclua todas as subtarefas da etapa atual para avançar.');
+      refreshModalPartial();
+      return;
+    }
+  }
+
+  tempStep=index;
+  tempChecks=getTempChecksForStep(index);
+  refreshModalPartial();
+}
+
+function toggleCheck(index){
+  if(modalLocked || !tempChecks[index]) return;
+  tempChecks[index].done=!tempChecks[index].done;
+  persistCurrentTempChecks();
+  const label=document.querySelectorAll('.check-item')[index];
+  if(label) label.className='check-item'+(tempChecks[index].done?' checked':'');
+}
+
+function addCheckItem(){
+  if(modalLocked) return;
+  const input=document.getElementById('new-check-input');
+  if(!input) return;
+  const value=(input.value || '').trim();
+  if(!value) return;
+  tempChecks.push({text:value,done:false});
+  persistCurrentTempChecks();
+  input.value='';
+  refreshModalPartial();
+}
+
+async function saveProject(id){
+  const previousProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : null;
+  const projectName=(document.getElementById('f-project-name').value || '').trim();
+  if(!projectName) return;
+
+  persistCurrentTempChecks();
+
+  const nextChecksByStep=Object.fromEntries(Object.entries(tempChecksByStep).map(([key,list])=>[key,cloneChecks(list)]));
+  STEPS.forEach((step,index)=>{
+    const key=String(index);
+    if(!Array.isArray(nextChecksByStep[key]) || !nextChecksByStep[key].length){
+      nextChecksByStep[key]=getChecksForStep(index);
+    } else {
+      const existingTexts = new Set(nextChecksByStep[key].map(item => item.text));
+      getChecksForStep(index).forEach(item=>{
+        if(!existingTexts.has(item.text)){
+          nextChecksByStep[key].push({text:item.text,done:false});
+        }
+      });
+    }
+  });
+  let nextStep=Number(tempStep);
+  const completionEligible=shouldShowCompletedStep({step:nextStep,checksByStep:nextChecksByStep});
+  if(nextStep===COMPLETED_STEP_INDEX && !completionEligible){
+    nextStep=STEPS.length-1;
+  }
+  if(nextStep>COMPLETED_STEP_INDEX) nextStep=COMPLETED_STEP_INDEX;
+
+  const createdAt=(previousProject?.createdAt) || nowIso();
+  const completedAt=nextStep===COMPLETED_STEP_INDEX ? (previousProject?.completedAt || nowIso()) : '';
+  const pipelineDays=nextStep===COMPLETED_STEP_INDEX ? calculatePipelineDays(createdAt, completedAt) : null;
+
+  const payload={
+    projectName,
+    clientPeople:(document.getElementById('f-client-people').value || '').trim(),
+    segment:(document.getElementById('f-segment').value || '').trim(),
+    projectCategory:(document.getElementById('f-project-category').value || 'Upgrade Visual').trim(),
+    responsible:(document.getElementById('f-responsible').value || '').trim(),
+    deadline:(document.getElementById('f-deadline').value || '').trim(),
+    step:nextStep,
+    checks:cloneChecks(getChecksForStep(nextStep).length ? (nextChecksByStep[String(nextStep)] || []) : []),
+    checksByStep:nextChecksByStep,
+    note:(document.getElementById('f-note').value || '').trim(),
+    createdAt,
+    completedAt,
+    pipelineDays,
+  };
+
+  if(id && id!=='null'){
+    const index=projects.findIndex(item=>Number(item.id)===Number(id));
+    if(index>-1){
+      const timeline=[...(previousProject.timeline||[]) , ...buildTimelineChanges(previousProject, payload)];
+      projects[index]={...projects[index],...payload,timeline};
+    }
+  } else {
+    const timeline=buildTimelineChanges(null, payload);
+    projects.push({...payload,id:nextId(),timeline});
+  }
+
+  await persistProjects();
+  const finalProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : projects[projects.length-1];
+  closeModal();
+  if(isProjectCompleted(finalProject)) activeView='completed';
+  else if(previousProject && isProjectCompleted(previousProject) && !isProjectCompleted(finalProject)) activeView='pipeline';
+  render();
+}
+
+async function deleteProject(id){
+  if(!confirm('Remover este projeto do dashboard?')) return;
+  projects=projects.filter(item=>Number(item.id)!==Number(id));
+  try{
+    if(hasSupabaseConfig() && authSession?.user){
+      await deleteProjectFromSupabase(id);
+    } else {
+      await saveStorage();
+    }
+  }catch(error){
+    console.error(error);
+    setAuthMessage('Falha ao remover o projeto.', true);
+  }
+  closeModal();
+  render();
+}
+
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('open');
+  tempStep=0;
+  tempChecks=[];
+  tempChecksByStep={};
+  modalLocked=false;
+  modalContextProjectId=null;
+}
+
+document.getElementById('modal-bg').addEventListener('click',function(event){
+  if(event.target===this) closeModal();
+});
+async function saveStorage(){
+  try{
+    await window.storage.set(STORAGE_KEY,JSON.stringify(projects));
+  }catch(error){
+    try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(projects)); }catch(e){}
+  }
+}
+
+function seedProjects(){
+  return [
+    {
+      id:1,
+      projectName:'Rebranding Maria Motta',
+      clientPeople:'Fernando Lima, Clara Lima',
+      segment:'Imobiliário',
+      projectCategory:'Upgrade de Marca',
+      responsible:'Ricardo',
+      deadline:'2026-05-15',
+      step:1,
+      note:'Workshop já sinalizado. Aguardando retorno dos contatos de clientes.',
+      checks:DEFAULT_CHECKS.diagnostico.map((item,index)=>({text:item,done:index<3})),
+      checksByStep:{'1':DEFAULT_CHECKS.diagnostico.map((item,index)=>({text:item,done:index<3}))},
+      timeline:[
+        {ts:'2026-04-01T09:00:00.000Z',type:'Projeto',text:'Projeto criado no dashboard.'},
+        {ts:'2026-04-02T13:30:00.000Z',type:'Checklist',text:'Checklist concluído em Diagnóstico: Enviar texto + link dos questionários.'}
+      ],
+      demandsByStep:{}
+    },
+    {
+      id:2,
+      projectName:'Nova marca para escritório contábil',
+      clientPeople:'Marina Alves, Paulo Nunes',
+      segment:'Contabilidade',
+      projectCategory:'Upgrade Visual',
+      responsible:'Ana',
+      deadline:'2026-04-18',
+      step:0,
+      note:'Kickoff agendado para a próxima semana.',
+      checks:DEFAULT_CHECKS.onboarding.map((item,index)=>({text:item,done:index<2})),
+      checksByStep:{'0':DEFAULT_CHECKS.onboarding.map((item,index)=>({text:item,done:index<2}))},
+      timeline:[
+        {ts:'2026-04-03T10:00:00.000Z',type:'Projeto',text:'Projeto criado no dashboard.'}
+      ],
+      demandsByStep:{}
+    },
+    {
+      id:3,
+      projectName:'Sistema de identidade ZALTA',
+      clientPeople:'Bruna Ribeiro, André Luiz, Luana Ribeiro',
+      segment:'Moda feminina',
+      projectCategory:'Upgrade Estratégico',
+      responsible:'Lucas',
+      deadline:'2026-04-10',
+      step:3,
+      note:'Apresentação visual prevista para sexta-feira.',
+      checks:DEFAULT_CHECKS.identidade.map((item,index)=>({text:item,done:index<1})),
+      checksByStep:{'3':DEFAULT_CHECKS.identidade.map((item,index)=>({text:item,done:index<1}))},
+      timeline:[
+        {ts:'2026-04-04T16:15:00.000Z',type:'Etapa',text:'Etapa alterada para Identidade.'}
+      ],
+      demandsByStep:{}
+    }
+  ];
+}
+
+async function loadStorage(){
+  try{
+    let raw='';
+    try{
+      const response=await window.storage.get(STORAGE_KEY);
+      raw=response?.value || '';
+    }catch(storageError){
+      raw=localStorage.getItem(STORAGE_KEY) || '';
+    }
+
+    if(raw){
+      projects=JSON.parse(raw).map(normalizeProjectData);
+    } else {
+      projects=seedProjects().map(normalizeProjectData);
+    }
+  }catch(error){
+    projects=seedProjects().map(normalizeProjectData);
+  }
+  render();
+}
+
+applyTheme(getPreferredTheme());
+try{
+  const media = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+  if(media && media.addEventListener){
+    media.addEventListener('change', event=>{
+      let stored='';
+      try{ stored=localStorage.getItem(THEME_KEY)||''; }catch(error){}
+      if(!stored) applyTheme(event.matches ? 'dark' : 'light');
+    });
+  }
+}catch(error){}
+
+
+function toggleProject(el){
+  const project = el.closest('.timeline-project');
+  if(!project) return;
+  project.classList.toggle('collapsed');
+}
+
+if(hasSupabaseConfig()){
+  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    authSession = session || null;
+    renderAuthUI();
+    if(authSession?.user){
+      await loadProjects();
+    } else {
+      projects = [];
+      render();
+    }
+  });
+}
+renderAuthUI();
+if(!hasSupabaseConfig()){
+  loadProjects();
+}
+</script>
+</body>
+</html>
