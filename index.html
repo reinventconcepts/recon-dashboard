@@ -423,7 +423,8 @@ html[data-theme="dark"] .view-tab.complete{
   .step-lbl{text-align:left}
 }
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 document.addEventListener('keydown', function(event){
   const gate=document.getElementById('auth-gate');
   if(!gate || gate.style.display==='none') return;
@@ -432,7 +433,6 @@ document.addEventListener('keydown', function(event){
     gateLogin();
   }
 });
-
 </script>
 </head>
 <body>
@@ -874,6 +874,55 @@ function addDemandChild(projectId, stepIndex, parentIndex){
 
 
 
+
+function getSupabaseProjectRef(){
+  try{
+    const match = String(SUPABASE_URL || '').match(/^https:\/\/([^.]+)\.supabase\.co/i);
+    return match ? match[1] : '';
+  }catch(error){
+    return '';
+  }
+}
+
+function clearSupabaseStoredSession(){
+  try{
+    const projectRef = getSupabaseProjectRef();
+    const keysToRemove = [];
+    for(let i=0;i<localStorage.length;i++){
+      const key = localStorage.key(i);
+      if(!key) continue;
+      if((projectRef && key.includes(`sb-${projectRef}`)) || key.startsWith('sb-')){
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key=>localStorage.removeItem(key));
+  }catch(error){
+    console.error(error);
+  }
+}
+
+async function validateActiveSession(){
+  if(!hasSupabaseConfig() || !supabaseClient) return null;
+  const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+  if(sessionError){
+    throw sessionError;
+  }
+  const session = sessionData?.session || null;
+  if(!session?.access_token){
+    authSession = null;
+    return null;
+  }
+  const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+  if(userError || !userData?.user){
+    try{ await supabaseClient.auth.signOut({ scope:'local' }); }catch(error){}
+    clearSupabaseStoredSession();
+    authSession = null;
+    return null;
+  }
+  authSession = session;
+  return authSession;
+}
+
 function hasSupabaseConfig(){
   return !!supabaseClient;
 }
@@ -922,9 +971,7 @@ function renderAuthUI(){
 
 async function refreshSession(){
   if(!hasSupabaseConfig()) return null;
-  const { data, error } = await supabaseClient.auth.getSession();
-  if(error) throw error;
-  authSession = data.session || null;
+  authSession = await validateActiveSession();
   renderAuthUI();
   return authSession;
 }
@@ -937,6 +984,7 @@ async function handleSignIn(){
     setAuthMessage('Preencha login e senha.', true);
     return;
   }
+  clearSupabaseStoredSession();
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if(error){
     setAuthMessage(error.message || 'Não foi possível entrar.', true);
@@ -966,7 +1014,7 @@ async function handleSignUp(){
 async function handleSignOut(){
   try{
     if(hasSupabaseConfig() && supabaseClient){
-      const { error } = await supabaseClient.auth.signOut();
+      const { error } = await supabaseClient.auth.signOut({ scope:'local' });
       if(error){
         setAuthMessage(error.message || 'Não foi possível sair.', true);
       }
@@ -975,8 +1023,20 @@ async function handleSignOut(){
     console.error(error);
   }
 
+  clearSupabaseStoredSession();
   authSession = null;
   projects = [];
+  tempStep = 0;
+  tempChecks = [];
+  tempChecksByStep = {};
+  modalLocked = false;
+  modalContextProjectId = null;
+  modalHasUnsavedChanges = false;
+  modalIsNewProject = false;
+
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(error){}
+
+  closeModal(true);
   render();
   renderAuthUI();
 
@@ -1037,6 +1097,7 @@ async function loadProjects(){
         return;
       }
       projects = [];
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(error){}
       render();
       return;
     }
@@ -1093,6 +1154,7 @@ async function gateLogin(){
   }
 
   try{
+    clearSupabaseStoredSession();
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
     if(error){
@@ -1100,12 +1162,14 @@ async function gateLogin(){
         msg.textContent=error.message || 'Acesso negado.';
         msg.style.color='var(--danger)';
       }
+      authSession = null;
+      renderAuthUI();
       return;
     }
 
     authSession = data?.session || null;
     if(msg) msg.textContent='';
-    renderAuthUI();
+    await refreshSession();
     await loadProjects();
   }catch(error){
     if(msg){
@@ -2082,7 +2146,7 @@ async function initApp(){
   if(hasSupabaseConfig()){
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       authSession = session || null;
-      renderAuthUI();
+      await refreshSession();
       if(authSession?.user){
         await loadProjects();
       } else {
@@ -2092,19 +2156,18 @@ async function initApp(){
     });
 
     try{
-      const { data, error } = await supabaseClient.auth.getSession();
-      if(!error){
-        authSession = data.session || null;
-      }
+      authSession = await validateActiveSession();
     }catch(error){
       console.error(error);
       authSession = null;
+      clearSupabaseStoredSession();
     }
 
     renderAuthUI();
     if(authSession?.user){
       await loadProjects();
     } else {
+      projects = [];
       render();
     }
     return;
