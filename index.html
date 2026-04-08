@@ -823,7 +823,7 @@ function toggleDemandParent(projectId, stepIndex, parentIndex){
   if(!parents[parentIndex]) return;
   parents[parentIndex].done = !parents[parentIndex].done;
   syncDemandBaseToProject(project, stepIndex, parentIndex);
-  saveProject();
+  persistProjects();
   render();
 }
 
@@ -834,7 +834,7 @@ function toggleDemandChild(projectId, stepIndex, parentIndex, childIndex){
   const child = parents[parentIndex]?.children?.[childIndex];
   if(!child) return;
   child.done = !child.done;
-  saveProject();
+  persistProjects();
   render();
 }
 
@@ -848,7 +848,7 @@ function addDemandChild(projectId, stepIndex, parentIndex){
   if(!parents[parentIndex].children) parents[parentIndex].children = [];
   parents[parentIndex].children.push({text:value, done:false});
   if(input) input.value = '';
-  saveProject();
+  persistProjects();
   render();
 }
 
@@ -938,18 +938,31 @@ async function handleSignUp(){
 }
 
 async function handleSignOut(){
-  if(!hasSupabaseConfig()) return;
-  const { error } = await supabaseClient.auth.signOut();
-  if(error){
-    setAuthMessage(error.message || 'Não foi possível sair.', true);
-    return;
+  try{
+    if(hasSupabaseConfig()){
+      const { error } = await supabaseClient.auth.signOut();
+      if(error){
+        setAuthMessage(error.message || 'Não foi possível sair.', true);
+      }
+    }
+  }catch(error){
+    setAuthMessage('Não foi possível sair.', true);
   }
+
   authSession = null;
   projects = [];
-  renderAuthUI();
   render();
+  renderAuthUI();
+
   const gate=document.getElementById('auth-gate');
+  const gateMsg=document.getElementById('gate-msg');
+  const gateEmail=document.getElementById('gate-email');
+  const gatePassword=document.getElementById('gate-password');
+
   if(gate) gate.style.display='flex';
+  if(gateMsg) gateMsg.textContent='';
+  if(gateEmail) gateEmail.value='';
+  if(gatePassword) gatePassword.value='';
 }
 
 async function loadProjectsFromSupabase(){
@@ -1007,7 +1020,7 @@ async function loadProjects(){
   }
 }
 
-async function saveProject(){
+async function persistProjects(){
   try{
     if(hasSupabaseConfig()){
       await refreshSession();
@@ -1759,7 +1772,7 @@ function addCheckItem(){
   refreshModalPartial();
 }
 
-function saveProject(id){
+async function saveProject(id){
   const previousProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : null;
   const projectName=(document.getElementById('f-project-name').value || '').trim();
   if(!projectName) return;
@@ -1805,7 +1818,7 @@ function saveProject(id){
     projects.push({...payload,id:nextId(),timeline});
   }
 
-  saveProject();
+  await persistProjects();
   const finalProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : projects[projects.length-1];
   closeModal();
   if(isProjectCompleted(finalProject)) activeView='completed';
