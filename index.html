@@ -413,9 +413,49 @@ html[data-theme="dark"] .view-tab.complete{
   .step-lbl{text-align:left}
 }
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+async function gateLogin(){
+  const email=document.getElementById('gate-email').value.trim();
+  const password=document.getElementById('gate-password').value.trim();
+  const msg=document.getElementById('gate-msg');
+
+  if(!email||!password){
+    msg.textContent='Preencha login e senha';
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if(error){
+    msg.textContent=error.message;
+    return;
+  }
+
+  document.getElementById('auth-gate').style.display='none';
+  await loadProjects();
+}
+
+function handleSignOut(){
+  supabaseClient.auth.signOut();
+  document.getElementById('auth-gate').style.display='flex';
+}
+
+</script>
 </head>
 <body>
+
+<div id="auth-gate" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="width:100%;max-width:420px;padding:20px">
+    <div class="auth-form">
+      <input type="text" id="gate-email" placeholder="Login">
+      <input type="password" id="gate-password" placeholder="Senha">
+      <div class="auth-actions">
+        <button class="btn btn-primary" onclick="gateLogin()">Entrar</button>
+      </div>
+      <div id="gate-msg" class="helper-txt"></div>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
   <h2 style="position:absolute;left:-9999px">Dashboard completo de projetos RECON</h2>
 
@@ -508,6 +548,8 @@ html[data-theme="dark"] .view-tab.complete{
 
 
 <script>
+const STORAGE_KEY='recon_projects_v1';
+const THEME_KEY='recon_theme_v1';
 const STORAGE_KEY='recon_projects_v1';
 const THEME_KEY='recon_theme_v1';
 const SUPABASE_URL='https://witajevffeuvtvgyaeyp.supabase.co';
@@ -1905,6 +1947,32 @@ if(hasSupabaseConfig()){
 }
 renderAuthUI();
 loadProjects();
+
+async function gateLogin(){
+  const email=document.getElementById('gate-email').value.trim();
+  const password=document.getElementById('gate-password').value.trim();
+  const msg=document.getElementById('gate-msg');
+
+  if(!email||!password){
+    msg.textContent='Preencha login e senha';
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if(error){
+    msg.textContent=error.message;
+    return;
+  }
+
+  document.getElementById('auth-gate').style.display='none';
+  await loadProjects();
+}
+
+function handleSignOut(){
+  supabaseClient.auth.signOut();
+  document.getElementById('auth-gate').style.display='flex';
+}
+
 </script>
 </body>
 </html>
