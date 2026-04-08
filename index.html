@@ -618,6 +618,8 @@ let tempChecksByStep={};
 let activeView='pipeline';
 let modalLocked=false;
 let modalContextProjectId=null;
+let modalHasUnsavedChanges=false;
+let modalIsNewProject=false;
 
 let activeDashboard='projects';
 let demandsUiState={projects:{},steps:{}};
@@ -1683,6 +1685,8 @@ function openNew(){
   tempChecks=cloneChecks(tempChecksByStep['0']);
   modalLocked=false;
   modalContextProjectId=null;
+  modalHasUnsavedChanges=false;
+  modalIsNewProject=true;
   showModal(null);
 }
 
@@ -1694,6 +1698,8 @@ function openEdit(id, source='pipeline'){
   tempChecks=getTempChecksForStep(tempStep);
   modalLocked=source==='completed' && isProjectCompleted(project);
   modalContextProjectId=project.id;
+  modalHasUnsavedChanges=false;
+  modalIsNewProject=false;
   showModal(project);
 }
 
@@ -1804,6 +1810,11 @@ function showModal(project){
       <button class="btn btn-primary" onclick="saveProject(${project?.id ?? 'null'})">Salvar</button>
     </div>
   `;
+  const modalInner=document.getElementById('modal-inner');
+  modalInner.querySelectorAll('input[type="text"], input[type="date"], select, textarea').forEach(el=>{
+    el.addEventListener('input', ()=>{ modalHasUnsavedChanges=true; });
+    el.addEventListener('change', ()=>{ modalHasUnsavedChanges=true; });
+  });
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -1832,6 +1843,7 @@ function selectStep(index){
 
   tempStep=index;
   tempChecks=getTempChecksForStep(index);
+  modalHasUnsavedChanges=true;
   refreshModalPartial();
 }
 
@@ -1839,6 +1851,7 @@ function toggleCheck(index){
   if(modalLocked || !tempChecks[index]) return;
   tempChecks[index].done=!tempChecks[index].done;
   persistCurrentTempChecks();
+  modalHasUnsavedChanges=true;
   const label=document.querySelectorAll('.check-item')[index];
   if(label) label.className='check-item'+(tempChecks[index].done?' checked':'');
 }
@@ -1851,6 +1864,7 @@ function addCheckItem(){
   if(!value) return;
   tempChecks.push({text:value,done:false});
   persistCurrentTempChecks();
+  modalHasUnsavedChanges=true;
   input.value='';
   refreshModalPartial();
 }
@@ -1914,6 +1928,8 @@ async function saveProject(id){
     projects.push({...payload,id:nextId(),timeline});
   }
 
+  modalHasUnsavedChanges=false;
+  modalIsNewProject=false;
   await persistProjects();
   const finalProject = id && id!=='null' ? projects.find(item=>Number(item.id)===Number(id)) : projects[projects.length-1];
   closeModal();
@@ -1939,13 +1955,19 @@ async function deleteProject(id){
   render();
 }
 
-function closeModal(){
+function closeModal(forceClose=false){
+  if(!forceClose && modalIsNewProject && modalHasUnsavedChanges){
+    const shouldClose=confirm('Tem certeza que quer cancelar?');
+    if(!shouldClose) return;
+  }
   document.getElementById('modal-bg').classList.remove('open');
   tempStep=0;
   tempChecks=[];
   tempChecksByStep={};
   modalLocked=false;
   modalContextProjectId=null;
+  modalHasUnsavedChanges=false;
+  modalIsNewProject=false;
 }
 
 document.getElementById('modal-bg').addEventListener('click',function(event){
