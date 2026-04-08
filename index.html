@@ -177,11 +177,6 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 12px}
 .section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
 .legend{font-size:12px;color:var(--muted)}
-.hierarchy-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.hierarchy-note{font-size:11px;color:var(--muted)}
-.order-btn{width:32px;height:32px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
-.order-btn:disabled{opacity:.35;cursor:not-allowed}
-.card-order-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 
 .dashboard-switcher{display:flex;gap:10px;align-items:center;margin:0 0 18px}
 
@@ -257,6 +252,36 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .demand-add-row input{flex:1}
 .demand-empty{padding:18px;border:1px dashed var(--border-strong);border-radius:16px;color:var(--muted);text-align:center;background:var(--surface-muted)}
 .demands-meta{display:flex;flex-wrap:wrap;gap:8px}
+.controls-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+.controls-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.controls-select{min-width:180px;max-width:220px}
+.priority-badge{font-size:11px;padding:5px 10px;border-radius:999px;font-weight:700;white-space:nowrap;border:1px solid transparent}
+.priority-high{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.priority-medium{background:var(--warning-soft);color:var(--warning);border-color:var(--warning)}
+.priority-low{background:var(--success-soft);color:var(--success);border-color:var(--success)}
+.sortable-project{position:relative}
+.sortable-project.dragging{opacity:.55}
+.drag-handle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:grab;color:var(--text);font-size:15px;transition:.18s ease;user-select:none}
+.drag-handle:hover{background:var(--card-soft)}
+.drag-handle:active{cursor:grabbing}
+.client-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.client-card-head .client-top{flex:1;margin-bottom:0}
+.timeline-project-head-left{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
+.demands-project-main{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
+.demand-parent-actions,.demand-child-actions,.check-item-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;transition:.18s ease}
+.icon-btn:hover{background:var(--card-soft)}
+.icon-btn-danger{color:var(--danger);border-color:var(--danger)}
+.icon-btn-danger:hover{background:var(--danger-soft)}
+.check-item{justify-content:space-between}
+.check-item-main{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
+.priority-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.drag-over-top{box-shadow:inset 0 3px 0 var(--info)}
+.drag-over-bottom{box-shadow:inset 0 -3px 0 var(--info)}
+@media (max-width:900px){
+  .priority-row{grid-template-columns:1fr}
+  .client-card-head{flex-direction:column}
+}
 
 .view-tabs{display:flex;gap:10px;align-items:center;margin:8px 0 18px}
 .view-tab{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:.18s ease}
@@ -511,10 +536,19 @@ document.addEventListener('keydown', function(event){
   <div class="view-panel active" id="panel-pipeline">
     <div class="section-head">
       <p class="section-label">Pipeline de projetos</p>
-      <div class="hierarchy-tools">
-        <span class="hierarchy-note">Reordene conforme sua prioridade.</span>
-        <button class="btn btn-small" type="button" onclick="resetProjectOrder('pipeline')">Restaurar ordem</button>
-        <p class="legend">Clique em um card para editar.</p>
+      <p class="legend">Clique em um card para editar.</p>
+    </div>
+    <div class="controls-bar">
+      <div class="controls-group">
+        <select class="controls-select" id="pipeline-sort" onchange="setProjectSortMode(this.value)">
+          <option value="manual">Ordem manual</option>
+          <option value="deadline">Ordenar por prazo</option>
+          <option value="step">Ordenar por etapa</option>
+          <option value="priority">Ordenar por prioridade</option>
+        </select>
+      </div>
+      <div class="controls-group">
+        <button class="btn btn-small" type="button" onclick="resetProjectManualOrder()">Restaurar ordem</button>
       </div>
     </div>
     <div class="client-grid" id="client-grid"></div>
@@ -540,10 +574,19 @@ document.addEventListener('keydown', function(event){
   <div class="dashboard-panel" id="dashboard-demands">
     <div class="section-head">
       <p class="section-label">Dashboard de demandas</p>
-      <div class="hierarchy-tools">
-        <span class="hierarchy-note">Reordene os projetos deste painel de forma independente.</span>
-        <button class="btn btn-small" type="button" onclick="resetProjectOrder('demands')">Restaurar ordem</button>
-        <p class="legend">As subtarefas da pipeline aparecem aqui como demandas-base. Subtarefas extras criadas aqui ficam somente neste dashboard.</p>
+      <p class="legend">As subtarefas da pipeline aparecem aqui como demandas-base. Subtarefas extras criadas aqui ficam somente neste dashboard.</p>
+    </div>
+    <div class="controls-bar">
+      <div class="controls-group">
+        <select class="controls-select" id="demands-sort" onchange="setDemandsSortMode(this.value)">
+          <option value="manual">Ordem manual</option>
+          <option value="deadline">Ordenar por prazo</option>
+          <option value="step">Ordenar por etapa</option>
+          <option value="priority">Ordenar por prioridade</option>
+        </select>
+      </div>
+      <div class="controls-group">
+        <button class="btn btn-small" type="button" onclick="resetDemandsManualOrder()">Restaurar ordem</button>
       </div>
     </div>
     <div class="demands-board" id="demands-board"></div>
@@ -556,7 +599,7 @@ document.addEventListener('keydown', function(event){
 
 
 <script>
-const STORAGE_KEY='recon_projects_v1';
+const STORAGE_KEY='recon_projects_v2';
 const THEME_KEY='recon_theme_v1';
 const SUPABASE_URL='https://witajevffeuvtvgyaeyp.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpdGFqZXZmZmV1dnR2Z3lhZXlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MTc5NTQsImV4cCI6MjA5MTE5Mzk1NH0.wVTXQghGE8SsxKx0q3hVJP13PWa8bILXUsNmYwmy6Yo';
@@ -636,73 +679,183 @@ let modalIsNewProject=false;
 
 let activeDashboard='projects';
 let demandsUiState={projects:{},steps:{}};
+let projectSortMode='manual';
+let demandsSortMode='manual';
+let dragState={type:'',id:null,targetId:null,position:''};
+const PRIORITY_META={high:{label:'Alta',className:'priority-high',icon:'🔴'},medium:{label:'Média',className:'priority-medium',icon:'🟡'},low:{label:'Baixa',className:'priority-low',icon:'🟢'}};
 
-function ensureProjectOrderState(project){
-  if(!project.projectOrder || typeof project.projectOrder!=='object') project.projectOrder={};
-  if(typeof project.projectOrder.pipeline !== 'number') project.projectOrder.pipeline = Number(project.id) || 0;
-  if(typeof project.projectOrder.demands !== 'number') project.projectOrder.demands = Number(project.id) || 0;
-  if(typeof project.projectOrder.completed !== 'number') project.projectOrder.completed = Number(project.id) || 0;
-  return project.projectOrder;
+
+
+function normalizePriority(value){
+  return value==='high' || value==='medium' || value==='low' ? value : 'medium';
 }
 
-function getProjectOrder(project, view='pipeline'){
-  const orderState=ensureProjectOrderState(project);
-  return Number(orderState[view]);
+function priorityRank(value){
+  const key=normalizePriority(value);
+  return key==='high'?0:key==='medium'?1:2;
 }
 
-function sortProjectsByView(list, view='pipeline'){
-  return [...list].sort((a,b)=>{
-    const orderDiff=getProjectOrder(a, view)-getProjectOrder(b, view);
-    if(orderDiff!==0) return orderDiff;
-    const nameA=String(a.projectName||'');
-    const nameB=String(b.projectName||'');
-    return nameA.localeCompare(nameB,'pt-BR');
+function priorityBadge(value){
+  const meta=PRIORITY_META[normalizePriority(value)];
+  return `<span class="priority-badge ${meta.className}">${meta.icon} ${meta.label}</span>`;
+}
+
+function byDeadline(a,b){
+  const da=daysLeft(a.deadline); const db=daysLeft(b.deadline);
+  const va=da===null?999999:da; const vb=db===null?999999:db;
+  if(va!==vb) return va-vb;
+  return String(a.projectName||'').localeCompare(String(b.projectName||''),'pt-BR');
+}
+
+function byStep(a,b){
+  if(Number(a.step)!==Number(b.step)) return Number(a.step)-Number(b.step);
+  return byDeadline(a,b);
+}
+
+function byPriority(a,b){
+  const diff=priorityRank(a.priority)-priorityRank(b.priority);
+  if(diff!==0) return diff;
+  return byDeadline(a,b);
+}
+
+function ensureProjectOrders(){
+  projects.forEach((project,index)=>{
+    if(typeof project.manualOrder!=='number') project.manualOrder=index;
+    if(typeof project.demandsManualOrder!=='number') project.demandsManualOrder=index;
+    project.priority=normalizePriority(project.priority);
   });
 }
 
-function normalizeProjectOrder(view='pipeline', list=projects){
-  sortProjectsByView(list, view).forEach((project,index)=>{
-    ensureProjectOrderState(project)[view]=index;
+function orderedProjects(list, mode='manual', demands=false){
+  ensureProjectOrders();
+  const arr=[...list];
+  if(mode==='deadline') return arr.sort(byDeadline);
+  if(mode==='step') return arr.sort(byStep);
+  if(mode==='priority') return arr.sort(byPriority);
+  return arr.sort((a,b)=>((demands?a.demandsManualOrder:a.manualOrder)-(demands?b.demandsManualOrder:b.manualOrder)));
+}
+
+function setProjectSortMode(mode){
+  projectSortMode=['manual','deadline','step','priority'].includes(mode)?mode:'manual';
+  render();
+}
+
+function setDemandsSortMode(mode){
+  demandsSortMode=['manual','deadline','step','priority'].includes(mode)?mode:'manual';
+  render();
+}
+
+function resetProjectManualOrder(){
+  const ordered=orderedProjects(projects.filter(project=>!isProjectCompleted(project)),'deadline',false);
+  ordered.forEach((project,index)=>{ project.manualOrder=index; });
+  persistProjects();
+  render();
+}
+
+function resetDemandsManualOrder(){
+  const ordered=orderedProjects(projects.filter(project=>!isProjectCompleted(project)),'deadline',true);
+  ordered.forEach((project,index)=>{ project.demandsManualOrder=index; });
+  persistProjects();
+  render();
+}
+
+function syncOrderSelectors(){
+  const pipeline=document.getElementById('pipeline-sort');
+  const demands=document.getElementById('demands-sort');
+  if(pipeline) pipeline.value=projectSortMode;
+  if(demands) demands.value=demandsSortMode;
+}
+
+function startDrag(event, type, projectId){
+  const manualMode = type==='project' ? projectSortMode==='manual' : demandsSortMode==='manual';
+  if(!manualMode){
+    event.preventDefault();
+    return;
+  }
+  dragState={type,id:Number(projectId),targetId:null,position:''};
+  try{ event.dataTransfer.effectAllowed='move'; event.dataTransfer.setData('text/plain', String(projectId)); }catch(error){}
+  const card=event.currentTarget?.closest('.sortable-project');
+  if(card) card.classList.add('dragging');
+}
+
+function allowDrop(event, type, targetId){
+  const manualMode = type==='project' ? projectSortMode==='manual' : demandsSortMode==='manual';
+  if(!manualMode) return;
+  event.preventDefault();
+  const card=event.currentTarget?.closest('.sortable-project');
+  if(!card) return;
+  const rect=card.getBoundingClientRect();
+  const offset=event.clientY-rect.top;
+  const position=offset<rect.height/2?'top':'bottom';
+  dragState.targetId=Number(targetId);
+  dragState.position=position;
+  card.classList.remove('drag-over-top','drag-over-bottom');
+  card.classList.add(position==='top'?'drag-over-top':'drag-over-bottom');
+}
+
+function clearDragClasses(){
+  document.querySelectorAll('.sortable-project').forEach(el=>el.classList.remove('dragging','drag-over-top','drag-over-bottom'));
+}
+
+function handleDrop(event, type, targetId){
+  const manualMode = type==='project' ? projectSortMode==='manual' : demandsSortMode==='manual';
+  if(!manualMode) return;
+  event.preventDefault();
+  const sourceId=dragState.id;
+  const position=dragState.position||'bottom';
+  clearDragClasses();
+  if(!sourceId || Number(sourceId)===Number(targetId)) return;
+  const active=orderedProjects(projects.filter(project=>!isProjectCompleted(project)),'manual',type==='demands');
+  const sourceIndex=active.findIndex(project=>Number(project.id)===Number(sourceId));
+  let targetIndex=active.findIndex(project=>Number(project.id)===Number(targetId));
+  if(sourceIndex<0 || targetIndex<0) return;
+  const [moved]=active.splice(sourceIndex,1);
+  if(sourceIndex<targetIndex) targetIndex -= 1;
+  active.splice(position==='top'?targetIndex:targetIndex+1,0,moved);
+  active.forEach((project,index)=>{
+    if(type==='demands') project.demandsManualOrder=index;
+    else project.manualOrder=index;
   });
-}
-
-async function moveProjectOrder(projectId, view='pipeline', direction=1){
-  const relevant=view==='demands'
-    ? sortProjectsByView(projects.filter(project=>!isProjectCompleted(project)), view)
-    : sortProjectsByView(projects.filter(project=>view==='completed' ? isProjectCompleted(project) : !isProjectCompleted(project)), view);
-  const currentIndex=relevant.findIndex(project=>Number(project.id)===Number(projectId));
-  if(currentIndex<0) return;
-  const targetIndex=currentIndex+Number(direction||0);
-  if(targetIndex<0 || targetIndex>=relevant.length) return;
-  const current=relevant[currentIndex];
-  const target=relevant[targetIndex];
-  const currentOrder=getProjectOrder(current, view);
-  const targetOrder=getProjectOrder(target, view);
-  ensureProjectOrderState(current)[view]=targetOrder;
-  ensureProjectOrderState(target)[view]=currentOrder;
-  normalizeProjectOrder(view);
-  await persistProjects();
+  persistProjects();
   render();
 }
 
-async function resetProjectOrder(view='pipeline'){
-  const base=view==='demands'
-    ? projects.filter(project=>!isProjectCompleted(project))
-    : projects.filter(project=>view==='completed' ? isProjectCompleted(project) : !isProjectCompleted(project));
-  base
-    .sort((a,b)=>{
-      const da=daysLeft(a.deadline); const db=daysLeft(b.deadline);
-      const va=da===null?9999:da; const vb=db===null?9999:db;
-      if(va!==vb) return va-vb;
-      return String(a.projectName||'').localeCompare(String(b.projectName||''),'pt-BR');
-    })
-    .forEach((project,index)=>{
-      ensureProjectOrderState(project)[view]=index;
-    });
-  await persistProjects();
+function endDrag(){
+  clearDragClasses();
+  dragState={type:'',id:null,targetId:null,position:''};
+}
+
+function removeChecklistItem(index){
+  if(modalLocked || !tempChecks[index]) return;
+  tempChecks.splice(index,1);
+  persistCurrentTempChecks();
+  modalHasUnsavedChanges=true;
+  refreshModalPartial();
+}
+
+function removeDemandParent(projectId, stepIndex, parentIndex){
+  const project = projects.find(item=>Number(item.id)===Number(projectId));
+  if(!project) return;
+  const parents = getDemandParents(project, stepIndex);
+  const [removed]=parents.splice(parentIndex,1);
+  const key=String(stepIndex);
+  if(Array.isArray(project.checksByStep[key]) && removed){
+    project.checksByStep[key]=project.checksByStep[key].filter(item=>item.text!==removed.text);
+    if(Number(project.step)===Number(stepIndex)) project.checks=cloneChecks(project.checksByStep[key]);
+  }
+  persistProjects();
   render();
 }
 
+function removeDemandChild(projectId, stepIndex, parentIndex, childIndex){
+  const project = projects.find(item=>Number(item.id)===Number(projectId));
+  if(!project) return;
+  const parents = getDemandParents(project, stepIndex);
+  if(!parents[parentIndex]?.children) return;
+  parents[parentIndex].children.splice(childIndex,1);
+  persistProjects();
+  render();
+}
 
 function ensureDemandUiState(){
   if(!demandsUiState || typeof demandsUiState!=='object') demandsUiState={projects:{},steps:{}};
@@ -838,28 +991,30 @@ function toggleDemandsProject(projectId){
 function renderDemandsBoard(){
   const board=document.getElementById('demands-board');
   if(!board) return;
-  const activeProjects=sortProjectsByView(projects.filter(project=>!isProjectCompleted(project)), 'demands');
+  const activeProjects=orderedProjects(projects.filter(project=>!isProjectCompleted(project)), demandsSortMode, true);
   if(!activeProjects.length){
     board.innerHTML='<div class="demand-empty">Nenhum projeto ativo para exibir demandas.</div>';
+    syncOrderSelectors();
     return;
   }
-  board.innerHTML = activeProjects.map((project,index)=>{
+  board.innerHTML = activeProjects.map(project=>{
     const stats=demandStats(project);
+    const dragEnabled=demandsSortMode==='manual';
     return `
-      <div class="demands-project ${isDemandsProjectCollapsed(project.id)?'collapsed':''}" data-project-id="${project.id}">
+      <div class="demands-project sortable-project ${isDemandsProjectCollapsed(project.id)?'collapsed':''}" data-project-id="${project.id}" draggable="${dragEnabled}" ondragstart="startDrag(event,'demands', ${project.id})" ondragover="allowDrop(event,'demands', ${project.id})" ondrop="handleDrop(event,'demands', ${project.id})" ondragend="endDrag()">
         <div class="demands-project-head">
-          <div>
-            <div class="demands-project-title">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
-            <div class="demands-project-sub">${escapeHtml(project.projectCategory || '—')} · Etapa atual: ${escapeHtml(stepName(project.step))}</div>
+          <div class="demands-project-main">
+            <div class="drag-handle" title="Arrastar para reorganizar">⋮⋮</div>
+            <div>
+              <div class="demands-project-title">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
+              <div class="demands-project-sub">${escapeHtml(project.projectCategory || '—')} · Etapa atual: ${escapeHtml(stepName(project.step))}</div>
+            </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            ${priorityBadge(project.priority)}
             <div class="demands-meta">
               <span class="pill">Demandas-base: ${stats.parentDone}/${stats.parentTotal}</span>
               <span class="pill">Subtarefas extras: ${stats.childDone}/${stats.childTotal}</span>
-            </div>
-            <div class="card-order-actions" onclick="event.stopPropagation()">
-              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, 'demands', -1)" ${index===0?'disabled':''} title="Mover para cima">↑</button>
-              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, 'demands', 1)" ${index===activeProjects.length-1?'disabled':''} title="Mover para baixo">↓</button>
             </div>
             <div class="demands-project-toggle" onclick="toggleDemandsProject(${project.id})">
               <span>›</span>
@@ -894,13 +1049,19 @@ function renderDemandsBoard(){
                           <input type="checkbox" ${parent.done?'checked':''} onchange="toggleDemandParent(${project.id}, ${stepIndex}, ${parentIndex})">
                           <div class="demand-parent-text ${parent.done?'done':''}">${escapeHtml(parent.text)}</div>
                         </div>
+                        <div class="demand-parent-actions">
+                          <button class="icon-btn icon-btn-danger" type="button" title="Remover demanda" onclick="removeDemandParent(${project.id}, ${stepIndex}, ${parentIndex})">🗑</button>
+                        </div>
                       </div>
                       <div class="demand-children">
                         ${(parent.children||[]).map((child,childIndex)=>`
-                          <label class="demand-child">
+                          <div class="demand-child">
                             <input type="checkbox" ${child.done?'checked':''} onchange="toggleDemandChild(${project.id}, ${stepIndex}, ${parentIndex}, ${childIndex})">
-                            <span class="demand-child-text ${child.done?'done':''}">${escapeHtml(child.text)}</span>
-                          </label>
+                            <span class="demand-child-text ${child.done?'done':''}" style="flex:1">${escapeHtml(child.text)}</span>
+                            <div class="demand-child-actions">
+                              <button class="icon-btn icon-btn-danger" type="button" title="Remover subtarefa" onclick="removeDemandChild(${project.id}, ${stepIndex}, ${parentIndex}, ${childIndex})">🗑</button>
+                            </div>
+                          </div>
                         `).join('')}
                       </div>
                       <div class="demand-add-row">
@@ -917,6 +1078,7 @@ function renderDemandsBoard(){
       </div>
     `;
   }).join('');
+  syncOrderSelectors();
 }
 
 function toggleDemandParent(projectId, stepIndex, parentIndex){
@@ -1488,7 +1650,9 @@ function normalizeProjectData(project){
   normalized.completedAt=project?.completedAt || '';
   normalized.pipelineDays=project?.pipelineDays ?? null;
   normalized.demandsByStep=(project?.demandsByStep && typeof project.demandsByStep==='object') ? project.demandsByStep : {};
-  normalized.projectOrder=(project?.projectOrder && typeof project.projectOrder==='object') ? project.projectOrder : {};
+  normalized.priority=normalizePriority(project?.priority);
+  normalized.manualOrder=typeof project?.manualOrder==='number' ? project.manualOrder : 0;
+  normalized.demandsManualOrder=typeof project?.demandsManualOrder==='number' ? project.demandsManualOrder : normalized.manualOrder;
 
   if(!normalized.checksByStep || typeof normalized.checksByStep!=='object'){
     normalized.checksByStep = {};
@@ -1537,11 +1701,12 @@ function renderProjectCards(list, targetId, options={}){
   const isCompletedView=!!options.completedView;
   if(!list.length){
     grid.innerHTML=`<div class="empty-state">${isCompletedView?'Nenhum projeto concluído ainda.':'Nenhum projeto cadastrado.<br>Use o botão <span class="kbd">+ Novo projeto</span> para começar.'}</div>`;
+    syncOrderSelectors();
     return;
   }
 
-  const orderView=options.orderView || (isCompletedView ? 'completed' : 'pipeline');
-  const sorted=sortProjectsByView(list, orderView);
+  const sortMode=isCompletedView ? 'deadline' : projectSortMode;
+  const sorted=orderedProjects(list, sortMode, false);
 
   grid.innerHTML=sorted.map(project=>{
     const st=statusOf(project);
@@ -1551,7 +1716,6 @@ function renderProjectCards(list, targetId, options={}){
     const completionInfo=isProjectCompleted(project) && project.pipelineDays ? `Finalizado em ${formatPipelineDays(project.pipelineDays)}` : '';
     const currentStepProgress=isProjectCompleted(project)?100:(total ? percent : 0);
     const visibleSteps=getVisibleStepsForData(project);
-    const pipelinePercent=Math.max(0,Math.min(100,Math.round((((Number(project.step)||0)+(currentStepProgress/100))/visibleSteps.length)*100)));
     const dots=visibleSteps.map((step,i)=>{
       let fill=0;
       if(i < Number(project.step||0)) fill=100;
@@ -1566,61 +1730,66 @@ function renderProjectCards(list, targetId, options={}){
   `;
     }).join('');
     const labels=visibleSteps.map((step,i)=>`<div class="step-lbl${i===project.step?' active-lbl':''}">${escapeHtml(step.label)}</div>`).join('');
+    const dragEnabled=!isCompletedView && projectSortMode==='manual';
     return `
-      <div class="client-card" onclick="openEdit(${project.id}, '${isCompletedView?'completed':'pipeline'}')">
-        <div class="client-top">
-          <div class="client-main">
-            <div class="client-name">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
-            <div class="client-meta">
-              <span class="pill">Segmento: ${escapeHtml(project.segment || 'Não informado')}</span>
-              <span class="pill">${escapeHtml(project.projectCategory || '—')}</span>
-              <span class="pill">Etapa atual: ${escapeHtml(stepName(project.step))}</span>
+      <div class="client-card sortable-project" draggable="${dragEnabled}" ondragstart="startDrag(event,'project', ${project.id})" ondragover="allowDrop(event,'project', ${project.id})" ondrop="handleDrop(event,'project', ${project.id})" ondragend="endDrag()">
+        <div class="client-card-head">
+          <div class="client-top">
+            <div class="client-main">
+              <div class="client-name">${escapeHtml(project.projectName || 'Projeto sem nome')}</div>
+              <div class="client-meta">
+                <span class="pill">Segmento: ${escapeHtml(project.segment || 'Não informado')}</span>
+                <span class="pill">${escapeHtml(project.projectCategory || '—')}</span>
+                <span class="pill">Etapa atual: ${escapeHtml(stepName(project.step))}</span>
+                ${priorityBadge(project.priority)}
+              </div>
+            </div>
+            <div class="right-meta">
+              <span class="badge ${st.cls}">${st.label}</span>
+              <span class="deadline-txt">${isProjectCompleted(project) && completionInfo ? completionInfo : `${dlTxt} · ${fmtDate(project.deadline)}`}</span>
+              <span class="task-txt">${isProjectCompleted(project)?`Projeto finalizado${project.completedAt?` em ${formatDateTime(project.completedAt)}`:''}`:`${done}/${total} tarefas · ${percent}% concluído`}</span>
             </div>
           </div>
-          <div class="right-meta">
-            <div class="card-order-actions" onclick="event.stopPropagation()">
-              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, '${orderView}', -1)" ${sorted.findIndex(item=>Number(item.id)===Number(project.id))===0?'disabled':''} title="Mover para cima">↑</button>
-              <button class="btn order-btn" type="button" onclick="moveProjectOrder(${project.id}, '${orderView}', 1)" ${sorted.findIndex(item=>Number(item.id)===Number(project.id))===sorted.length-1?'disabled':''} title="Mover para baixo">↓</button>
-            </div>
-            <span class="badge ${st.cls}">${st.label}</span>
-            <span class="deadline-txt">${isProjectCompleted(project) && completionInfo ? completionInfo : `${dlTxt} · ${fmtDate(project.deadline)}`}</span>
-            <span class="task-txt">${isProjectCompleted(project)?`Projeto finalizado${project.completedAt?` em ${formatDateTime(project.completedAt)}`:''}`:`${done}/${total} tarefas · ${percent}% concluído`}</span>
-          </div>
+          ${!isCompletedView?'<div class="drag-handle" title="Arrastar para reorganizar">⋮⋮</div>':''}
         </div>
 
-        <div class="people-row">${formatPeopleInline(project.clientPeople)}</div>
+        <div onclick="openEdit(${project.id}, '${isCompletedView?'completed':'pipeline'}')">
+          <div class="people-row">${formatPeopleInline(project.clientPeople)}</div>
 
-        <div class="steps-labels" style="grid-template-columns:repeat(${visibleSteps.length},minmax(0,1fr));">${labels}</div>
-        <div class="steps-track">${dots}</div>
+          <div class="steps-labels" style="grid-template-columns:repeat(${visibleSteps.length},minmax(0,1fr));">${labels}</div>
+          <div class="steps-track">${dots}</div>
 
-        <div class="client-footer">
-          <div class="note-block">
-            <div>
-              <div class="note-label">Notas e próximos passos</div>
-              <div class="note-preview">${escapeHtml(project.note || 'Sem observações registradas.')}</div>
-            </div>
-            <div class="resp-row">
-              <div class="avatar">${escapeHtml(initials(project.responsible || '?'))}</div>
-              <span class="resp-name">Responsável: ${escapeHtml(project.responsible || 'Não definido')}</span>
+          <div class="client-footer">
+            <div class="note-block">
+              <div>
+                <div class="note-label">Notas e próximos passos</div>
+                <div class="note-preview">${escapeHtml(project.note || 'Sem observações registradas.')}</div>
+              </div>
+              <div class="resp-row">
+                <div class="avatar">${escapeHtml(initials(project.responsible || '?'))}</div>
+                <span class="resp-name">Responsável: ${escapeHtml(project.responsible || 'Não definido')}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     `;
   }).join('');
+  syncOrderSelectors();
 }
 
 function renderGrid(){
   const activeProjects=projects.filter(project=>!isProjectCompleted(project));
-  renderProjectCards(activeProjects,'client-grid',{completedView:false,orderView:'pipeline'});
+  renderProjectCards(activeProjects,'client-grid',{completedView:false});
 }
 
 function renderCompletedGrid(){
   const completedProjects=projects.filter(project=>isProjectCompleted(project));
-  renderProjectCards(completedProjects,'completed-grid',{completedView:true,orderView:'completed'});
+  renderProjectCards(completedProjects,'completed-grid',{completedView:true});
 }
 
 function render(){
+  ensureProjectOrders();
   renderMetrics();
   renderGrid();
   renderCompletedGrid();
@@ -1628,6 +1797,7 @@ function render(){
   renderDemandsBoard();
   updateView();
   switchDashboard(activeDashboard);
+  syncOrderSelectors();
 }
 
 function switchView(view){
@@ -1766,6 +1936,7 @@ function buildTimelineChanges(previousProject, payload){
       ['segment','Projeto', (v)=>`Segmento atualizado para ${v || 'não informado'}.`],
       ['projectCategory','Projeto', (v)=>`Tipo de projeto atualizado para ${v}.`],
       ['responsible','Responsável', (v)=>`Responsável atualizado para ${v || 'não definido'}.`],
+      ['priority','Prioridade', (v)=>`Prioridade atualizada para ${PRIORITY_META[normalizePriority(v)].label}.`],
       ['deadline','Prazo', (v)=>`Data estimada de conclusão atualizada para ${v ? fmtDate(v) : 'sem prazo definido'}.`],
       ['note','Notas', ()=>`Notas e próximos passos foram atualizados.`],
     ];
@@ -1866,10 +2037,13 @@ function renderChecklist(){
   tempChecks=getTempChecksForStep(tempStep);
   const isCompletedStep=Number(tempStep)===COMPLETED_STEP_INDEX;
   const html=(tempChecks||[]).map((item,index)=>`
-    <label class="check-item${item.done?' checked':''}">
-      <input type="checkbox" ${item.done?'checked':''} ${modalLocked?'disabled':''} onchange="toggleCheck(${index})">
-      <span>${escapeHtml(item.text)}</span>
-    </label>
+    <div class="check-item${item.done?' checked':''}">
+      <label class="check-item-main">
+        <input type="checkbox" ${item.done?'checked':''} ${modalLocked?'disabled':''} onchange="toggleCheck(${index})">
+        <span>${escapeHtml(item.text)}</span>
+      </label>
+      ${!modalLocked && !isCompletedStep ? `<div class="check-item-actions"><button class="icon-btn icon-btn-danger" type="button" title="Remover subtarefa" onclick="removeChecklistItem(${index})">🗑</button></div>` : ''}
+    </div>
   `).join('');
 
   return `
@@ -1877,7 +2051,7 @@ function renderChecklist(){
       <div class="checklist-head">
         <div>
           <div class="checklist-title">Checklist da etapa: ${escapeHtml(stepLabel)}</div>
-          <div class="checklist-sub">${isCompletedStep?'Nenhum checklist operacional nesta etapa final.':(modalLocked?'Neste projeto concluído, apenas a etapa atual pode ser alterada.':'Você pode marcar as subtarefas e também adicionar itens específicos do projeto.')}</div>
+          <div class="checklist-sub">${isCompletedStep?'Nenhum checklist operacional nesta etapa final.':(modalLocked?'Neste projeto concluído, apenas a etapa atual pode ser alterada.':'Você pode marcar as subtarefas, adicionar itens específicos e remover o que não fizer sentido.')}</div>
         </div>
       </div>
       <div class="checklist" id="checklist">${html || '<div class="helper-txt">Esta etapa não possui subtarefas disponíveis.</div>'}</div>
@@ -1929,11 +2103,20 @@ function showModal(project){
       </div>
     </div>
 
-    <div class="two-col">
+    <div class="priority-row">
+      <div class="field-group">
+        <div class="field-label">Prioridade</div>
+        <select id="f-priority" ${lockedAttr}>
+          ${[['high','Alta'],['medium','Média'],['low','Baixa']].map(([value,label])=>`<option value="${value}" ${normalizePriority(project?.priority)===value?'selected':''}>${label}</option>`).join('')}
+        </select>
+      </div>
       <div class="field-group">
         <div class="field-label">Data estimada de conclusão</div>
         <input type="date" id="f-deadline" value="${escapeHtml(project?.deadline || '')}" ${lockedAttr}>
       </div>
+    </div>
+
+    <div class="two-col">
       <div class="field-group">
         <div class="field-label">Etapa atual</div>
         <div class="steps-select">${renderStepsOptions()}</div>
@@ -2053,6 +2236,7 @@ async function saveProject(id){
     segment:(document.getElementById('f-segment').value || '').trim(),
     projectCategory:(document.getElementById('f-project-category').value || 'Upgrade Visual').trim(),
     responsible:(document.getElementById('f-responsible').value || '').trim(),
+    priority:normalizePriority((document.getElementById('f-priority').value || 'medium').trim()),
     deadline:(document.getElementById('f-deadline').value || '').trim(),
     step:nextStep,
     checks:cloneChecks(getChecksForStep(nextStep).length ? (nextChecksByStep[String(nextStep)] || []) : []),
@@ -2071,7 +2255,7 @@ async function saveProject(id){
     }
   } else {
     const timeline=buildTimelineChanges(null, payload);
-    projects.push({...payload,id:nextId(),timeline});
+    projects.push({...payload,id:nextId(),timeline,manualOrder:projects.length,demandsManualOrder:projects.length});
   }
 
   modalHasUnsavedChanges=false;
@@ -2145,7 +2329,10 @@ function seedProjects(){
         {ts:'2026-04-01T09:00:00.000Z',type:'Projeto',text:'Projeto criado no dashboard.'},
         {ts:'2026-04-02T13:30:00.000Z',type:'Checklist',text:'Checklist concluído em Diagnóstico: Enviar texto + link dos questionários.'}
       ],
-      demandsByStep:{}
+      demandsByStep:{},
+      priority:'high',
+      manualOrder:0,
+      demandsManualOrder:0
     },
     {
       id:2,
@@ -2162,7 +2349,10 @@ function seedProjects(){
       timeline:[
         {ts:'2026-04-03T10:00:00.000Z',type:'Projeto',text:'Projeto criado no dashboard.'}
       ],
-      demandsByStep:{}
+      demandsByStep:{},
+      priority:'medium',
+      manualOrder:1,
+      demandsManualOrder:1
     },
     {
       id:3,
@@ -2179,7 +2369,10 @@ function seedProjects(){
       timeline:[
         {ts:'2026-04-04T16:15:00.000Z',type:'Etapa',text:'Etapa alterada para Identidade.'}
       ],
-      demandsByStep:{}
+      demandsByStep:{},
+      priority:'low',
+      manualOrder:2,
+      demandsManualOrder:2
     }
   ];
 }
