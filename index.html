@@ -884,22 +884,6 @@ function getSupabaseProjectRef(){
   }
 }
 
-function clearSupabaseStoredSession(){
-  try{
-    const projectRef = getSupabaseProjectRef();
-    const keysToRemove = [];
-    for(let i=0;i<localStorage.length;i++){
-      const key = localStorage.key(i);
-      if(!key) continue;
-      if((projectRef && key.includes(`sb-${projectRef}`)) || key.startsWith('sb-')){
-        keysToRemove.push(key);
-      }
-    }
-    keysToRemove.forEach(key=>localStorage.removeItem(key));
-  }catch(error){
-    console.error(error);
-  }
-}
 
 function hasSupabaseConfig(){
   return !!supabaseClient;
@@ -949,25 +933,16 @@ function renderAuthUI(){
 
 async function refreshSession(){
   if(!hasSupabaseConfig()) return null;
+
   try{
     const { data, error } = await supabaseClient.auth.getSession();
-    if(error) throw error;
-    const session = data?.session || null;
-    if(!session){
+    if(error){
+      console.error(error);
       authSession = null;
-      renderAuthUI();
-      return null;
+    } else {
+      authSession = data?.session || null;
     }
 
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
-    if(userError || !userData?.user){
-      authSession = null;
-      clearSupabaseStoredSession();
-      renderAuthUI();
-      return null;
-    }
-
-    authSession = session;
     renderAuthUI();
     return authSession;
   }catch(error){
@@ -1015,13 +990,12 @@ async function handleSignUp(){
 async function handleSignOut(){
   try{
     if(hasSupabaseConfig() && supabaseClient){
-      await supabaseClient.auth.signOut({ scope:'local' });
+      await supabaseClient.auth.signOut();
     }
   }catch(error){
     console.error(error);
   }
 
-  clearSupabaseStoredSession();
   authSession = null;
   projects = [];
   tempStep = 0;
@@ -1035,23 +1009,8 @@ async function handleSignOut(){
   try{ localStorage.removeItem(STORAGE_KEY); }catch(error){}
 
   closeModal(true);
-  render();
   renderAuthUI();
-
-  const gate=document.getElementById('auth-gate');
-  const gateMsg=document.getElementById('gate-msg');
-  const gateEmail=document.getElementById('gate-email');
-  const gatePassword=document.getElementById('gate-password');
-
-  if(gate) gate.style.display='flex';
-  if(gateMsg){
-    gateMsg.textContent='';
-    gateMsg.style.color='var(--muted)';
-  }
-  if(gateEmail) gateEmail.value='';
-  if(gatePassword) gatePassword.value='';
-
-  setTimeout(()=>window.location.reload(), 80);
+  render();
 }
 
 async function loadProjectsFromSupabase(){
@@ -1167,6 +1126,7 @@ async function gateLogin(){
 
     authSession = data?.session || null;
     if(msg) msg.textContent='';
+    renderAuthUI();
     await loadProjects();
   }catch(error){
     console.error(error);
@@ -2143,11 +2103,12 @@ async function initApp(){
   if(hasSupabaseConfig()){
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       authSession = session || null;
+      renderAuthUI();
+
       if(authSession?.user){
         await loadProjects();
       } else {
         projects = [];
-        renderAuthUI();
         render();
       }
     });
@@ -2157,7 +2118,6 @@ async function initApp(){
       await loadProjects();
     } else {
       projects = [];
-      renderAuthUI();
       render();
     }
     return;
