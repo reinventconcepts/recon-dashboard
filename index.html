@@ -181,19 +181,18 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .dashboard-switcher{display:flex;gap:10px;align-items:center;margin:0 0 18px}
 
 .auth-panel{margin:0 0 18px}
-.auth-card{display:grid;grid-template-columns:1.2fr .95fr;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow)}
-.auth-title{font-size:24px;line-height:1.05;font-weight:700;letter-spacing:-.03em;margin:4px 0 8px}
-.auth-text{font-size:13px;color:var(--muted);max-width:760px}
-.auth-status{margin-top:10px;font-size:12px;color:var(--muted)}
-.auth-form-wrap{display:flex;flex-direction:column;justify-content:center;gap:10px}
-.auth-form{display:flex;flex-direction:column;gap:10px}
+.auth-card{display:flex;justify-content:flex-end;background:transparent;border:0;padding:0;box-shadow:none}
+.auth-card-minimal{max-width:440px;margin-left:auto;width:100%}
+.auth-form-wrap{display:flex;flex-direction:column;justify-content:center;gap:10px;width:100%}
+.auth-form{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow)}
 .auth-actions{display:flex;gap:10px;flex-wrap:wrap}
-.auth-user-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.auth-user-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;box-shadow:var(--shadow)}
+.auth-message-minimal{min-height:16px;margin-top:2px}
 .app-locked .dashboard-switcher,
 .app-locked #dashboard-projects,
 .app-locked #dashboard-demands{opacity:.42;pointer-events:none;filter:grayscale(.08)}
 @media (max-width:900px){
-  .auth-card{grid-template-columns:1fr}
+  .auth-card-minimal{max-width:none;margin-left:0}
 }
 
 .dashboard-tab{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border:1px solid var(--border);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:.18s ease}
@@ -436,26 +435,20 @@ html[data-theme="dark"] .view-tab.complete{
   </div>
 
   <div class="auth-panel" id="auth-panel">
-    <div class="auth-card">
-      <div class="auth-copy">
-        <div class="section-label">Acesso</div>
-        <div class="auth-title">Conecte o dashboard ao Supabase</div>
-        <div class="auth-text">Quando a URL e a chave pública estiverem configuradas, os projetos, timelines e demandas passam a ser carregados da nuvem por usuário autenticado.</div>
-        <div class="auth-status" id="auth-status">Modo atual: Supabase ainda não configurado.</div>
-      </div>
+    <div class="auth-card auth-card-minimal">
       <div class="auth-form-wrap">
         <div class="auth-user-row" id="auth-user-row" style="display:none">
           <span class="pill" id="auth-user-pill">Usuário conectado</span>
           <button class="btn" type="button" onclick="handleSignOut()">Sair</button>
         </div>
         <div class="auth-form" id="auth-form">
-          <input type="text" id="auth-email" placeholder="Seu e-mail">
-          <input type="password" id="auth-password" placeholder="Sua senha">
+          <input type="text" id="auth-email" placeholder="Login">
+          <input type="password" id="auth-password" placeholder="Senha">
           <div class="auth-actions">
             <button class="btn btn-primary" type="button" onclick="handleSignIn()">Entrar</button>
             <button class="btn" type="button" onclick="handleSignUp()">Criar conta</button>
           </div>
-          <div class="helper-txt" id="auth-message">Preencha as credenciais para entrar. Se o Supabase não estiver configurado, o arquivo continua funcionando localmente.</div>
+          <div class="helper-txt auth-message-minimal" id="auth-message"></div>
         </div>
       </div>
     </div>
@@ -856,14 +849,12 @@ function setAuthMessage(message='', isError=false){
 
 function renderAuthUI(){
   const body=document.body;
-  const status=document.getElementById('auth-status');
   const form=document.getElementById('auth-form');
   const row=document.getElementById('auth-user-row');
   const pill=document.getElementById('auth-user-pill');
 
   if(!hasSupabaseConfig()){
     body.classList.remove('app-locked');
-    if(status) status.textContent='Modo atual: Supabase ainda não configurado. O dashboard usa armazenamento local para testes.';
     if(form) form.style.display='none';
     if(row) row.style.display='none';
     return;
@@ -871,13 +862,11 @@ function renderAuthUI(){
 
   if(authSession?.user){
     body.classList.remove('app-locked');
-    if(status) status.textContent='Supabase conectado. Os dados exibidos pertencem ao usuário autenticado.';
     if(form) form.style.display='none';
     if(row) row.style.display='flex';
     if(pill) pill.textContent=authSession.user.email || 'Usuário conectado';
   } else {
     body.classList.add('app-locked');
-    if(status) status.textContent='Supabase conectado. Faça login para carregar projetos, timeline e demandas.';
     if(form) form.style.display='flex';
     if(row) row.style.display='none';
   }
@@ -897,7 +886,7 @@ async function handleSignIn(){
   const email=(document.getElementById('auth-email')?.value || '').trim();
   const password=(document.getElementById('auth-password')?.value || '').trim();
   if(!email || !password){
-    setAuthMessage('Preencha e-mail e senha para entrar.', true);
+    setAuthMessage('Preencha login e senha.', true);
     return;
   }
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -905,7 +894,7 @@ async function handleSignIn(){
     setAuthMessage(error.message || 'Não foi possível entrar.', true);
     return;
   }
-  setAuthMessage('Login realizado com sucesso.');
+  setAuthMessage('');
   await refreshSession();
   await loadProjects();
 }
@@ -915,7 +904,7 @@ async function handleSignUp(){
   const email=(document.getElementById('auth-email')?.value || '').trim();
   const password=(document.getElementById('auth-password')?.value || '').trim();
   if(!email || !password){
-    setAuthMessage('Preencha e-mail e senha para criar a conta.', true);
+    setAuthMessage('Preencha login e senha.', true);
     return;
   }
   const { error } = await supabaseClient.auth.signUp({ email, password });
@@ -923,7 +912,7 @@ async function handleSignUp(){
     setAuthMessage(error.message || 'Não foi possível criar a conta.', true);
     return;
   }
-  setAuthMessage('Conta criada. Se a confirmação por e-mail estiver ativa, confirme o e-mail antes de entrar.');
+  setAuthMessage('Conta criada.');
 }
 
 async function handleSignOut(){
@@ -937,12 +926,10 @@ async function handleSignOut(){
   projects = [];
   renderAuthUI();
   render();
-  setAuthMessage('Sessão encerrada.');
 }
 
 async function loadProjectsFromSupabase(){
-  if(!hasSupabaseConfig()) return null;
-  if(!authSession?.user) return [];
+  if(!hasSupabaseConfig() || !authSession?.user) return [];
   const { data, error } = await supabaseClient
     .from(SUPABASE_TABLE)
     .select('project_data')
@@ -990,7 +977,7 @@ async function loadProjects(){
     await loadStorage();
   }catch(error){
     console.error(error);
-    setAuthMessage('Falha ao carregar dados do Supabase.', true);
+    setAuthMessage('Falha ao carregar dados.', true);
     projects = [];
     render();
   }
@@ -1008,7 +995,7 @@ async function saveProject(){
     await saveStorage();
   }catch(error){
     console.error(error);
-    setAuthMessage('Falha ao salvar dados no Supabase.', true);
+    setAuthMessage('Falha ao salvar dados.', true);
   }
 }
 
@@ -1786,7 +1773,7 @@ async function deleteProject(id){
     }
   }catch(error){
     console.error(error);
-    setAuthMessage('Houve falha ao remover o projeto no Supabase.', true);
+    setAuthMessage('Falha ao remover o projeto.', true);
   }
   closeModal();
   render();
