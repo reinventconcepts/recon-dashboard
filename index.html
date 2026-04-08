@@ -665,14 +665,14 @@ function getDemandParents(project, stepIndex){
   if(!Array.isArray(map[key]) || !map[key].length){
     map[key] = baseChecks.map(item=>({text:item.text,done:!!item.done,children:[],open:false}));
   } else {
-    const baseTexts = new Set(baseChecks.map(item=>item.text));
-    map[key] = map[key].filter(parent=>baseTexts.has(parent.text));
     const existingTexts = new Set(map[key].map(item=>item.text));
+
     baseChecks.forEach(item=>{
       if(!existingTexts.has(item.text)){
         map[key].push({text:item.text,done:!!item.done,children:[],open:false});
       }
     });
+
     map[key].forEach(parent=>{
       const matched = baseChecks.find(item=>item.text===parent.text);
       if(matched) parent.done = !!matched.done;
@@ -680,6 +680,7 @@ function getDemandParents(project, stepIndex){
       if(typeof parent.open !== 'boolean') parent.open = false;
     });
   }
+
   return map[key];
 }
 
@@ -1202,7 +1203,16 @@ function normalizeChecksByStep(project){
 
 function getTempChecksForStep(stepIndex){
   const key=String(Number(stepIndex)||0);
-  if(!tempChecksByStep[key]) tempChecksByStep[key]=getChecksForStep(stepIndex);
+  if(!tempChecksByStep[key] || !tempChecksByStep[key].length){
+    tempChecksByStep[key]=getChecksForStep(stepIndex);
+  } else {
+    const existingTexts = new Set(tempChecksByStep[key].map(item => item.text));
+    getChecksForStep(stepIndex).forEach(item=>{
+      if(!existingTexts.has(item.text)){
+        tempChecksByStep[key].push({text:item.text,done:false});
+      }
+    });
+  }
   tempChecks=cloneChecks(tempChecksByStep[key]);
   return tempChecks;
 }
@@ -1280,6 +1290,27 @@ function normalizeProjectData(project){
   normalized.completedAt=project?.completedAt || '';
   normalized.pipelineDays=project?.pipelineDays ?? null;
   normalized.demandsByStep=(project?.demandsByStep && typeof project.demandsByStep==='object') ? project.demandsByStep : {};
+
+  if(!normalized.checksByStep || typeof normalized.checksByStep!=='object'){
+    normalized.checksByStep = {};
+  }
+
+  STEPS.forEach((step, index)=>{
+    const key = String(index);
+    if(!Array.isArray(normalized.checksByStep[key]) || !normalized.checksByStep[key].length){
+      normalized.checksByStep[key] = getChecksForStep(index);
+    } else {
+      const existingTexts = new Set(normalized.checksByStep[key].map(item => item.text));
+      getChecksForStep(index).forEach(item => {
+        if(!existingTexts.has(item.text)){
+          normalized.checksByStep[key].push({ text:item.text, done:false });
+        }
+      });
+    }
+  });
+
+  const currentKey = String(Number(normalized.step)||0);
+  normalized.checks = cloneChecks(normalized.checksByStep[currentKey] || getChecksForStep(Number(normalized.step)||0));
   return normalized;
 }
 
@@ -1780,6 +1811,19 @@ async function saveProject(id){
   persistCurrentTempChecks();
 
   const nextChecksByStep=Object.fromEntries(Object.entries(tempChecksByStep).map(([key,list])=>[key,cloneChecks(list)]));
+  STEPS.forEach((step,index)=>{
+    const key=String(index);
+    if(!Array.isArray(nextChecksByStep[key]) || !nextChecksByStep[key].length){
+      nextChecksByStep[key]=getChecksForStep(index);
+    } else {
+      const existingTexts = new Set(nextChecksByStep[key].map(item => item.text));
+      getChecksForStep(index).forEach(item=>{
+        if(!existingTexts.has(item.text)){
+          nextChecksByStep[key].push({text:item.text,done:false});
+        }
+      });
+    }
+  });
   let nextStep=Number(tempStep);
   const completionEligible=shouldShowCompletedStep({step:nextStep,checksByStep:nextChecksByStep});
   if(nextStep===COMPLETED_STEP_INDEX && !completionEligible){
