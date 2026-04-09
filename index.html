@@ -1296,7 +1296,6 @@ async function deleteProjectFromSupabase(projectId){
 async function loadProjects(){
   try{
     if(hasSupabaseConfig()){
-      await refreshSession();
       if(authSession?.user){
         projects = await loadProjectsFromSupabase();
         render();
@@ -1318,7 +1317,6 @@ async function loadProjects(){
 async function persistProjects(){
   try{
     if(hasSupabaseConfig()){
-      await refreshSession();
       if(authSession?.user){
         await saveProjectsToSupabase();
         return;
@@ -1359,13 +1357,6 @@ async function gateLogin(){
   }
 
   try{
-    authInitializing = true;
-    try{
-      await supabaseClient.auth.signOut({ scope:'local' });
-    }catch(error){
-      console.warn('Falha ao limpar sessão antes do login.', error);
-    }
-
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
     if(error){
@@ -1380,7 +1371,7 @@ async function gateLogin(){
 
     authSession = data?.session || null;
     if(msg) msg.textContent='';
-    await refreshSession();
+    renderAuthUI();
     await loadProjects();
   }catch(error){
     console.error(error);
@@ -1388,8 +1379,6 @@ async function gateLogin(){
       msg.textContent='Não foi possível realizar o login.';
       msg.style.color='var(--danger)';
     }
-  }finally{
-    authInitializing = false;
   }
 }
 
