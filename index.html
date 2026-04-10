@@ -2162,26 +2162,46 @@ function toggleProject(el){
 }
 
 async function initApp(){
-  if(hasSupabaseConfig()){
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      authSession = session || null;
-      renderAuthUI();
-
-      if(event === 'SIGNED_OUT'){
-        projects = [];
-        render();
-        return;
-      }
-
-      if(authSession?.user){
-        await loadProjects();
-      }
-    });
+  if(!hasSupabaseConfig()){
+    renderAuthUI();
+    await loadStorage();
     return;
   }
 
+  // 1. Busca a sessão explicitamente primeiro (síncrono com o localStorage)
+  try{
+    const { data } = await supabaseClient.auth.getSession();
+    authSession = data?.session || null;
+  }catch(e){
+    authSession = null;
+  }
+
   renderAuthUI();
-  await loadProjects();
+
+  if(authSession?.user){
+    await loadProjects();
+  } else {
+    projects = [];
+    render();
+  }
+
+  // 2. Listener apenas para mudanças futuras (login/logout/token refresh)
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'INITIAL_SESSION') return; // já tratado acima
+
+    authSession = session || null;
+    renderAuthUI();
+
+    if(event === 'SIGNED_OUT'){
+      projects = [];
+      render();
+      return;
+    }
+
+    if(authSession?.user){
+      await loadProjects();
+    }
+  });
 }
 
 initApp();
