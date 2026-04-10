@@ -1294,7 +1294,6 @@ async function deleteProjectFromSupabase(projectId){
 async function loadProjects(){
   try{
     if(hasSupabaseConfig()){
-      await refreshSession();
       if(authSession?.user){
         projects = await loadProjectsFromSupabase();
         render();
@@ -1307,7 +1306,6 @@ async function loadProjects(){
     await loadStorage();
   }catch(error){
     console.error(error);
-    setAuthMessage('Falha ao carregar dados.', true);
     projects = [];
     render();
   }
@@ -2177,13 +2175,8 @@ async function initApp(){
 
       if(authSession?.user){
         await loadProjects();
-      } else {
-        projects = [];
-        render();
       }
     });
-    // onAuthStateChange já dispara INITIAL_SESSION imediatamente,
-    // não precisa de refreshSession separado aqui
     return;
   }
 
