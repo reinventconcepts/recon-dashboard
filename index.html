@@ -579,24 +579,41 @@ body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",san
 body{padding:0 18px}
 .wrap{max-width:1280px!important;padding:32px 48px 64px!important}
 .container-narrow{max-width:1180px!important;margin:0 auto!important;width:100%!important}
-.topbar,.dashboard-switcher,#metrics,.view-tabs,#dashboard-projects .section-head,#dashboard-demands .section-head,#panel-timeline .section-head,#panel-completed .section-head,#dashboard-projects .controls-bar,#dashboard-demands .controls-bar,#client-grid,#completed-grid,#timeline-board,#demands-board{max-width:1160px;margin-left:auto!important;margin-right:auto!important;width:100%}
+.topbar,.dashboard-switcher,#search-bar-wrap,#search-count,#alert-container,#health-panel,#metrics,.view-tabs,#dashboard-projects .section-head,#dashboard-demands .section-head,#panel-timeline .section-head,#panel-completed .section-head,#dashboard-projects .controls-bar,#dashboard-demands .controls-bar,#client-grid,#completed-grid,#timeline-board,#demands-board{max-width:1160px;margin-left:auto!important;margin-right:auto!important;width:100%}
 .metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important}
 .client-grid,.demands-board,.timeline-board{max-width:1160px}
 .client-card,.demands-project,.timeline-project{padding:22px!important}
 @media (min-width:1400px){
   .wrap{max-width:1320px!important;padding-left:64px!important;padding-right:64px!important}
-  .container-narrow,.topbar,.dashboard-switcher,#metrics,.view-tabs,#dashboard-projects .section-head,#dashboard-demands .section-head,#panel-timeline .section-head,#panel-completed .section-head,#dashboard-projects .controls-bar,#dashboard-demands .controls-bar,#client-grid,#completed-grid,#timeline-board,#demands-board{max-width:1180px!important}
+  .container-narrow,.topbar,.dashboard-switcher,#search-bar-wrap,#search-count,#alert-container,#health-panel,#metrics,.view-tabs,#dashboard-projects .section-head,#dashboard-demands .section-head,#panel-timeline .section-head,#panel-completed .section-head,#dashboard-projects .controls-bar,#dashboard-demands .controls-bar,#client-grid,#completed-grid,#timeline-board,#demands-board{max-width:1180px!important}
 }
 @media (max-width:1100px){
   body{padding:0 10px}
   .wrap{max-width:100%!important;padding:26px 22px 42px!important}
-  .container-narrow,.topbar,.dashboard-switcher,#metrics,.view-tabs,#dashboard-projects .section-head,#dashboard-demands .section-head,#panel-timeline .section-head,#panel-completed .section-head,#dashboard-projects .controls-bar,#dashboard-demands .controls-bar,#client-grid,#completed-grid,#timeline-board,#demands-board{max-width:100%!important}
+  .container-narrow,.topbar,.dashboard-switcher,#search-bar-wrap,#search-count,#alert-container,#health-panel,#metrics,.view-tabs,#dashboard-projects .section-head,#dashboard-demands .section-head,#panel-timeline .section-head,#panel-completed .section-head,#dashboard-projects .controls-bar,#dashboard-demands .controls-bar,#client-grid,#completed-grid,#timeline-board,#demands-board{max-width:100%!important}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media (max-width:640px){
-  body{padding:0}
-  .wrap{padding:20px 14px 32px!important}
+  body{padding:0 12px}
+  .wrap{padding:20px 0 36px!important}
   .metrics{grid-template-columns:1fr!important}
+  .topbar{flex-direction:column;align-items:flex-start;gap:14px}
+  .topbar-actions{width:100%;justify-content:flex-start}
+  .dashboard-switcher{width:100%!important;max-width:100%!important}
+  .view-tabs{width:100%!important;max-width:100%!important;flex-wrap:wrap}
+  .client-card,.demands-project,.timeline-project{padding:16px!important}
+  .client-name{font-size:20px!important}
+  .page-title{font-size:2rem!important}
+  #search-global{font-size:14px}
+  .health-panel{gap:10px!important}
+  .health-card{padding:14px!important}
+  .controls-bar{flex-direction:column;align-items:flex-start}
+  .controls-select{min-width:0!important;width:100%}
+  .note-block{grid-template-columns:1fr!important}
+  .feed-add{flex-direction:column}
+  .feed-add input,.feed-add .btn{width:100%}
+  .alert-banner{padding:12px 14px}
+  .site-footer{padding:20px 0 28px}
 }
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
