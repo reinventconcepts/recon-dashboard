@@ -203,7 +203,64 @@ body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-s
 .auth-message-minimal{min-height:16px;margin-top:2px}
 .app-locked .dashboard-switcher,
 .app-locked #dashboard-projects,
-.app-locked #dashboard-demands{opacity:.42;pointer-events:none;filter:grayscale(.08)}
+.app-locked #dashboard-demands,
+.app-locked #dashboard-financeiro{opacity:.42;pointer-events:none;filter:grayscale(.08)}
+
+/* ── FINANCEIRO ─────────────────────────────────────── */
+.fin-board{display:flex;flex-direction:column;gap:16px}
+.fin-project-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow)}
+.fin-project-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.fin-project-title{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.fin-project-sub{font-size:12px;color:var(--text-soft);margin-top:3px}
+.fin-meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.fin-tag{font-size:11px;padding:4px 10px;border-radius:999px;background:var(--card-soft);color:var(--text-soft);border:1px solid var(--border);font-weight:600}
+.fin-tag-green{background:var(--success-soft);color:var(--success);border-color:var(--success)}
+.fin-tag-warn{background:var(--warning-soft);color:var(--warning);border-color:var(--warning)}
+.fin-tag-danger{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.fin-tag-info{background:var(--info-soft);color:var(--info);border-color:var(--info)}
+.fin-tag-purple{background:var(--done-bg);color:var(--done-text);border-color:var(--done-text)}
+.fin-values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.fin-value-box{background:var(--surface-muted);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px}
+.fin-value-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-soft);font-weight:700;margin-bottom:4px}
+.fin-value-num{font-size:20px;font-weight:700;letter-spacing:-.03em}
+.fin-value-num.neg{color:var(--danger)}
+.fin-value-num.pos{color:var(--success)}
+.fin-parcelas{margin-top:10px}
+.fin-parcelas-head{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-soft);font-weight:700;margin-bottom:8px}
+.fin-parcela-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-muted);margin-bottom:6px;flex-wrap:wrap}
+.fin-parcela-num{font-size:11px;font-weight:700;color:var(--text-soft);min-width:24px}
+.fin-parcela-val{font-size:14px;font-weight:700;flex:1}
+.fin-parcela-date{font-size:12px;color:var(--text-soft)}
+.fin-parcela-status{margin-left:auto}
+.fin-confirm-btn{font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--success);background:var(--success-soft);color:var(--success);cursor:pointer;font-weight:700;transition:.18s ease}
+.fin-confirm-btn:hover{background:var(--success);color:var(--success-contrast)}
+.fin-paid-badge{font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--success);background:var(--success);color:var(--success-contrast);font-weight:700}
+.fin-pending-badge{font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--warning);background:var(--warning-soft);color:var(--warning);font-weight:700}
+.fin-late-badge{font-size:11px;padding:5px 10px;border-radius:999px;border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger);font-weight:700}
+.fin-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:22px}
+.fin-summary-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow)}
+.fin-summary-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-soft);font-weight:700;margin-bottom:6px}
+.fin-summary-val{font-size:26px;font-weight:700;letter-spacing:-.04em}
+.fin-summary-sub{font-size:12px;color:var(--text-soft);margin-top:4px}
+.fin-empty{padding:20px;text-align:center;color:var(--text-soft);border:1px dashed var(--border-strong);border-radius:var(--radius-lg)}
+.fin-permuta-note{font-size:12px;color:var(--done-text);background:var(--done-bg);border-radius:10px;padding:6px 10px;margin-top:6px;display:inline-block}
+
+/* Modal financial section */
+.fin-section{background:var(--surface-muted);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;margin-top:4px}
+.fin-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--text-soft);margin-bottom:12px}
+.fin-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fin-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:600px){.fin-row,.fin-row-3{grid-template-columns:1fr}}
+.fin-nf-preview{font-size:12px;color:var(--success);margin-top:4px;font-weight:600}
+.parcelas-builder{margin-top:8px}
+.parcela-entry{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.parcela-entry input{flex:1;min-width:100px}
+.parcela-entry .btn-icon-del{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;cursor:pointer;color:var(--danger);font-size:13px;transition:.15s ease}
+.parcela-entry .btn-icon-del:hover{background:var(--danger-soft)}
+.add-parcela-row{display:flex;gap:8px;margin-top:4px}
+.payment-mode-tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.payment-mode-tab{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text-soft);font-size:12px;font-weight:700;cursor:pointer;transition:.15s ease}
+.payment-mode-tab.active{background:var(--accent);color:var(--accent-contrast);border-color:var(--accent)}
 @media (max-width:900px){
   .auth-card-minimal{max-width:none;margin-left:0}
 }
@@ -692,6 +749,7 @@ document.addEventListener('keydown', function(event){
 
   <div class="dashboard-switcher">
     <button class="dashboard-tab active" id="dashboard-tab-projects" type="button" onclick="switchDashboard('projects')">Pipeline</button>
+    <button class="dashboard-tab" id="dashboard-tab-financeiro" type="button" onclick="switchDashboard('financeiro')">Financeiro</button>
     <button class="dashboard-tab" id="dashboard-tab-demands" type="button" onclick="switchDashboard('demands')">Demandas</button>
   </div>
 
@@ -749,6 +807,15 @@ document.addEventListener('keydown', function(event){
     </div>
     <div class="client-grid" id="completed-grid"></div>
   </div>
+  </div>
+
+  <div class="dashboard-panel" id="dashboard-financeiro">
+    <div class="section-head">
+      <p class="section-label">Financeiro</p>
+      <p class="legend">Dados financeiros dos projetos, pagamentos e fluxo de caixa.</p>
+    </div>
+    <div class="fin-summary" id="fin-summary"></div>
+    <div class="fin-board" id="fin-board"></div>
   </div>
 
   <div class="dashboard-panel" id="dashboard-demands">
@@ -1091,15 +1158,20 @@ function handleDemandsStepToggle(projectId, stepIndex, el){
 }
 
 function switchDashboard(view){
-  activeDashboard = view === 'demands' ? 'demands' : 'projects';
+  activeDashboard = ['demands','financeiro'].includes(view) ? view : 'projects';
   const projectsTab=document.getElementById('dashboard-tab-projects');
   const demandsTab=document.getElementById('dashboard-tab-demands');
+  const finTab=document.getElementById('dashboard-tab-financeiro');
   const projectsPanel=document.getElementById('dashboard-projects');
   const demandsPanel=document.getElementById('dashboard-demands');
+  const finPanel=document.getElementById('dashboard-financeiro');
   if(projectsTab) projectsTab.classList.toggle('active', activeDashboard==='projects');
   if(demandsTab) demandsTab.classList.toggle('active', activeDashboard==='demands');
+  if(finTab) finTab.classList.toggle('active', activeDashboard==='financeiro');
   if(projectsPanel) projectsPanel.classList.toggle('active', activeDashboard==='projects');
   if(demandsPanel) demandsPanel.classList.toggle('active', activeDashboard==='demands');
+  if(finPanel) finPanel.classList.toggle('active', activeDashboard==='financeiro');
+  if(activeDashboard==='financeiro') renderFinanceiroBoard();
 }
 
 
@@ -1785,20 +1857,38 @@ function normalizeProjectData(project){
 
   const currentKey = String(Number(normalized.step)||0);
   normalized.checks = cloneChecks(normalized.checksByStep[currentKey] || getChecksForStep(Number(normalized.step)||0));
+  // Financial normalization
+  normalized.fin_valor = Number(project?.fin_valor) || 0;
+  normalized.fin_nf_pct = Number(project?.fin_nf_pct) || 0;
+  normalized.fin_nf_valor = Number(project?.fin_nf_valor) || normalized.fin_valor;
+  normalized.fin_custo_designer = Number(project?.fin_custo_designer) || 0;
+  normalized.fin_custos_extras = Number(project?.fin_custos_extras) || 0;
+  normalized.fin_pagamento = project?.fin_pagamento || 'avista';
+  normalized.fin_parcelas = Array.isArray(project?.fin_parcelas) ? project.fin_parcelas.map(p=>({
+    val: Number(p.val)||0, date: p.date||'', pago: !!p.pago, pagoAt: p.pagoAt||''
+  })) : [];
   return normalized;
 }
 
+
+function fmtBRL(val){
+  const n = Number(val) || 0;
+  return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2});
+}
 
 function renderMetrics(){
   const total=projects.length;
   const active=projects.filter(p=>!isProjectCompleted(p) && p.step < STEPS.length-1).length;
   const delivery=projects.filter(p=>!isProjectCompleted(p) && p.step === STEPS.length-1).length;
   const completed=projects.filter(p=>isProjectCompleted(p)).length;
+  // Soma valor dos projetos excluindo permutas
+  const valorTotal = projects.filter(p=>p.fin_pagamento !== 'permuta').reduce((s,p)=>s+(Number(p.fin_valor)||0),0);
   document.getElementById('metrics').innerHTML=`
     <div class="metric"><div class="metric-label">Projetos</div><div class="metric-val">${String(total).padStart(2,'0')}</div><div class="metric-sub">Totais no sistema</div></div>
     <div class="metric"><div class="metric-label">Em andamento</div><div class="metric-val">${String(active).padStart(2,'0')}</div><div class="metric-sub">Ativos na pipeline</div></div>
     <div class="metric"><div class="metric-label">Em entrega</div><div class="metric-val">${String(delivery).padStart(2,'0')}</div><div class="metric-sub">Finalizando</div></div>
     <div class="metric"><div class="metric-label">Concluídos</div><div class="metric-val">${String(completed).padStart(2,'0')}</div><div class="metric-sub">Projetos arquivados</div></div>
+    <div class="metric"><div class="metric-label">Valor geral</div><div class="metric-val" style="font-size:16px">${fmtBRL(valorTotal)}</div><div class="metric-sub">Soma dos projetos (excl. permuta)</div></div>
   `;
 }
 
@@ -2033,7 +2123,53 @@ function renderStepsOptions(){
 
 function renderChecklist(){ const stepLabel=stepName(tempStep); tempChecks=getTempChecksForStep(tempStep); const isCompletedStep=Number(tempStep)===COMPLETED_STEP_INDEX; const html=(tempChecks||[]).map((item,index)=>`<div class="check-item${item.done?' checked':''}"><label class="check-item-main"><input type="checkbox" ${item.done?'checked':''} ${modalLocked?'disabled':''} onchange="toggleCheck(${index})"><span>${escapeHtml(item.text)}</span></label>${!modalLocked && !isCompletedStep ? `<div class="check-item-actions"><button class="icon-btn icon-btn-danger" type="button" title="Remover subtarefa" onclick="removeChecklistItem(${index})">🗑</button></div>` : ''}</div>`).join(''); return `<div class="checklist-card"><div class="checklist-head"><div><div class="checklist-title">Checklist operacional · ${escapeHtml(stepLabel)}</div><div class="checklist-sub">${isCompletedStep?'Nenhum checklist operacional nesta etapa final.':(modalLocked?'Neste projeto concluído, apenas a etapa atual pode ser alterada.':'Marque, adicione e remova subtarefas.')}</div></div></div><div class="checklist" id="checklist">${html || '<div class="helper-txt">Esta etapa não possui subtarefas disponíveis.</div>'}</div>${(!modalLocked && !isCompletedStep)?`<div class="add-check-row"><input type="text" id="new-check-input" placeholder="Adicionar subtarefa personalizada"><button class="btn btn-small" type="button" onclick="addCheckItem()">Adicionar</button></div>`:''}</div>`; }
 
-function showModal(project){ const isNew=!project; const lockedAttr = modalLocked ? 'disabled' : ''; const currentLabel=stepName(tempStep); const categoryValue=project?.projectCategory || 'Upgrade Visual'; document.getElementById('modal-inner').innerHTML=`<div class="modal-inner-shell"><aside class="modal-aside"><div><div class="brand">Novo fluxo de trabalho</div><div class="modal-title">${isNew?'Novo projeto':'Editar projeto'}</div><div class="modal-subtitle">${modalLocked?'Projeto concluído: apenas a etapa atual pode ser alterada.':'Cadastre os dados centrais do projeto e acompanhe a operação por etapa.'}</div></div><div class="modal-meta-box"><div class="modal-meta-card"><div class="modal-meta-label">Etapas de fluxo</div><div class="steps-select">${renderStepsOptions()}</div></div><div class="modal-meta-card"><div class="modal-meta-label">Resumo atual</div><div class="modal-meta-value">Etapa selecionada: <strong>${escapeHtml(currentLabel)}</strong><br>Tipo de projeto: <strong>${escapeHtml(categoryValue)}</strong></div></div></div></aside><div class="modal-main"><div class="modal-head"><div><div class="brand">Cadastro e operação</div><div class="modal-subtitle">Insira os dados fundamentais para a gestão do projeto.</div></div><button class="close-btn" onclick="closeModal()">×</button></div><div class="field-group"><div class="field-label">Nome do projeto</div><input type="text" id="f-project-name" value="${escapeHtml(project?.projectName || '')}" placeholder="Ex: Maria Motta" ${lockedAttr}></div><div class="three-col"><div class="field-group"><div class="field-label">Segmento da empresa</div><input type="text" id="f-segment" value="${escapeHtml(project?.segment || '')}" placeholder="Ex: Moda, Saúde, Imobiliário" ${lockedAttr}></div><div class="field-group"><div class="field-label">Tipo de projeto</div><select id="f-project-category" ${lockedAttr}>${['Upgrade Visual','Upgrade de Marca','Upgrade Estratégico'].map(option=>`<option value="${option}" ${String(categoryValue)===option?'selected':''}>${option}</option>`).join('')}</select></div><div class="field-group"><div class="field-label">Responsável</div><input type="text" id="f-responsible" value="${escapeHtml(project?.responsible || '')}" placeholder="Nome do responsável interno" ${lockedAttr}></div></div><div class="field-group"><div class="field-label">Líderes da empresa (cliente)</div><input type="text" id="f-client-people" value="${escapeHtml(project?.clientPeople || '')}" placeholder="Separe por vírgula. Ex: Maria Silva, João Pereira, Carla Souza" ${lockedAttr}><div class="helper-txt">Você pode inserir 1 ou mais nomes.</div></div><div class="priority-row"><div class="field-group"><div class="field-label">Prioridade</div><select id="f-priority" ${lockedAttr}>${[['high','Alta'],['medium','Média'],['low','Baixa']].map(([value,label])=>`<option value="${value}" ${normalizePriority(project?.priority)===value?'selected':''}>${label}</option>`).join('')}</select></div><div class="field-group"><div class="field-label">Data estimada de conclusão</div><input type="date" id="f-deadline" value="${escapeHtml(project?.deadline || '')}" ${lockedAttr}></div></div><div class="field-group">${renderChecklist()}</div><div class="field-group"><div class="field-label">Notas e próximos passos</div><textarea id="f-note" placeholder="Pendências, decisões, contexto importante, links e próximos movimentos." ${lockedAttr}>${escapeHtml(project?.note || '')}</textarea></div><div class="modal-footer">${(!isNew && !modalLocked)?`<button class="del-btn" onclick="deleteProject(${project.id})">Remover projeto</button>`:''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProject(${project?.id ?? 'null'})">Salvar projeto</button></div></div></div>`; const modalInner=document.getElementById('modal-inner'); modalInner.querySelectorAll('input[type="text"], input[type="date"], select, textarea').forEach(el=>{ el.addEventListener('input', ()=>{ modalHasUnsavedChanges=true; }); el.addEventListener('change', ()=>{ modalHasUnsavedChanges=true; }); }); document.getElementById('modal-bg').classList.add('open'); }
+function showModal(project){ const isNew=!project; const lockedAttr = modalLocked ? 'disabled' : ''; const currentLabel=stepName(tempStep); const categoryValue=project?.projectCategory || 'Upgrade Visual'; document.getElementById('modal-inner').innerHTML=`<div class="modal-inner-shell"><aside class="modal-aside"><div><div class="brand">Novo fluxo de trabalho</div><div class="modal-title">${isNew?'Novo projeto':'Editar projeto'}</div><div class="modal-subtitle">${modalLocked?'Projeto concluído: apenas a etapa atual pode ser alterada.':'Cadastre os dados centrais do projeto e acompanhe a operação por etapa.'}</div></div><div class="modal-meta-box"><div class="modal-meta-card"><div class="modal-meta-label">Etapas de fluxo</div><div class="steps-select">${renderStepsOptions()}</div></div><div class="modal-meta-card"><div class="modal-meta-label">Resumo atual</div><div class="modal-meta-value">Etapa selecionada: <strong>${escapeHtml(currentLabel)}</strong><br>Tipo de projeto: <strong>${escapeHtml(categoryValue)}</strong></div></div></div></aside><div class="modal-main"><div class="modal-head"><div><div class="brand">Cadastro e operação</div><div class="modal-subtitle">Insira os dados fundamentais para a gestão do projeto.</div></div><button class="close-btn" onclick="closeModal()">×</button></div><div class="field-group"><div class="field-label">Nome do projeto</div><input type="text" id="f-project-name" value="${escapeHtml(project?.projectName || '')}" placeholder="Ex: Maria Motta" ${lockedAttr}></div><div class="three-col"><div class="field-group"><div class="field-label">Segmento da empresa</div><input type="text" id="f-segment" value="${escapeHtml(project?.segment || '')}" placeholder="Ex: Moda, Saúde, Imobiliário" ${lockedAttr}></div><div class="field-group"><div class="field-label">Tipo de projeto</div><select id="f-project-category" ${lockedAttr}>${['Upgrade Visual','Upgrade de Marca','Upgrade Estratégico'].map(option=>`<option value="${option}" ${String(categoryValue)===option?'selected':''}>${option}</option>`).join('')}</select></div><div class="field-group"><div class="field-label">Responsável</div><input type="text" id="f-responsible" value="${escapeHtml(project?.responsible || '')}" placeholder="Nome do responsável interno" ${lockedAttr}></div></div><div class="field-group"><div class="field-label">Líderes da empresa (cliente)</div><input type="text" id="f-client-people" value="${escapeHtml(project?.clientPeople || '')}" placeholder="Separe por vírgula. Ex: Maria Silva, João Pereira, Carla Souza" ${lockedAttr}><div class="helper-txt">Você pode inserir 1 ou mais nomes.</div></div><div class="priority-row"><div class="field-group"><div class="field-label">Prioridade</div><select id="f-priority" ${lockedAttr}>${[['high','Alta'],['medium','Média'],['low','Baixa']].map(([value,label])=>`<option value="${value}" ${normalizePriority(project?.priority)===value?'selected':''}>${label}</option>`).join('')}</select></div><div class="field-group"><div class="field-label">Data estimada de conclusão</div><input type="date" id="f-deadline" value="${escapeHtml(project?.deadline || '')}" ${lockedAttr}></div></div><div class="field-group">${renderChecklist()}</div><div class="field-group"><div class="field-label">Notas e próximos passos</div><textarea id="f-note" placeholder="Pendências, decisões, contexto importante, links e próximos movimentos." ${lockedAttr}>${escapeHtml(project?.note || '')}</textarea></div><div class="field-group">
+  <div class="field-label">Dados financeiros</div>
+  <div class="fin-section">
+    <div class="fin-section-title">Informações financeiras</div>
+    <div class="fin-row">
+      <div class="field-group">
+        <div class="field-label">Valor do projeto (R$)</div>
+        <input type="number" id="f-fin-valor" min="0" step="0.01" value="${escapeHtml(String(project?.fin_valor || ''))}" placeholder="0,00" ${lockedAttr} oninput="updateNfPreview()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Nota fiscal (%)</div>
+        <select id="f-fin-nf-pct" ${lockedAttr} onchange="updateNfPreview()">
+          <option value="">Sem NF</option>
+          ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${Number(project?.fin_nf_pct)===n?'selected':''}>${n}%</option>`).join('')}
+        </select>
+        <div class="fin-nf-preview" id="fin-nf-preview"></div>
+      </div>
+    </div>
+    <div class="fin-row">
+      <div class="field-group">
+        <div class="field-label">Custo designer (R$)</div>
+        <input type="number" id="f-fin-custo-designer" min="0" step="0.01" value="${escapeHtml(String(project?.fin_custo_designer || ''))}" placeholder="0,00" ${lockedAttr}>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Custos extras (R$)</div>
+        <input type="number" id="f-fin-custos-extras" min="0" step="0.01" value="${escapeHtml(String(project?.fin_custos_extras || ''))}" placeholder="0,00" ${lockedAttr}>
+      </div>
+    </div>
+    <div class="field-group" style="margin-top:8px">
+      <div class="field-label">Forma de pagamento</div>
+      <div class="payment-mode-tabs" id="payment-mode-tabs">
+        <button type="button" class="payment-mode-tab${(!project?.fin_pagamento||project?.fin_pagamento==='avista')?' active':''}" onclick="selectPaymentMode('avista')">À vista</button>
+        <button type="button" class="payment-mode-tab${project?.fin_pagamento==='parcelado'?' active':''}" onclick="selectPaymentMode('parcelado')">A prazo (parcelado)</button>
+        <button type="button" class="payment-mode-tab${project?.fin_pagamento==='permuta'?' active':''}" onclick="selectPaymentMode('permuta')">Permuta</button>
+      </div>
+      <input type="hidden" id="f-fin-pagamento" value="${escapeHtml(project?.fin_pagamento||'avista')}">
+    </div>
+    <div id="fin-parcelas-builder" style="display:${project?.fin_pagamento==='parcelado'?'block':'none'}">
+      <div class="fin-section-title" style="margin-top:8px">Parcelas</div>
+      <div id="parcelas-entries">${renderParcelasBuilder(project?.fin_parcelas||[])}</div>
+      <div class="add-parcela-row">
+        <button type="button" class="btn btn-small" onclick="addParcelaEntry()">+ Adicionar parcela</button>
+      </div>
+    </div>
+    ${project?.fin_pagamento==='permuta'?'<div class="fin-permuta-note">⇄ Projeto em permuta — valor não entra na soma geral do portfólio.</div>':''}
+  </div>
+</div><div class="modal-footer">${(!isNew && !modalLocked)?`<button class="del-btn" onclick="deleteProject(${project.id})">Remover projeto</button>`:''}<button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProject(${project?.id ?? 'null'})">Salvar projeto</button></div></div></div>`; const modalInner=document.getElementById('modal-inner'); modalInner.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], select, textarea').forEach(el=>{ el.addEventListener('input', ()=>{ modalHasUnsavedChanges=true; }); el.addEventListener('change', ()=>{ modalHasUnsavedChanges=true; }); }); document.getElementById('modal-bg').classList.add('open'); setTimeout(updateNfPreview, 50); }
 
 function refreshModalPartial(){
   const stepsBox=document.querySelector('.steps-select');
@@ -2118,6 +2254,29 @@ async function saveProject(id){
   const completedAt=nextStep===COMPLETED_STEP_INDEX ? (previousProject?.completedAt || nowIso()) : '';
   const pipelineDays=nextStep===COMPLETED_STEP_INDEX ? calculatePipelineDays(createdAt, completedAt) : null;
 
+  // Financial fields
+  const finValor = parseFloat(document.getElementById('f-fin-valor')?.value || 0) || 0;
+  const finNfPct = parseInt(document.getElementById('f-fin-nf-pct')?.value || 0) || 0;
+  const finNfValor = finNfPct > 0 ? parseFloat((finValor * (1 - finNfPct/100)).toFixed(2)) : finValor;
+  const finCustoDesigner = parseFloat(document.getElementById('f-fin-custo-designer')?.value || 0) || 0;
+  const finCustosExtras = parseFloat(document.getElementById('f-fin-custos-extras')?.value || 0) || 0;
+  const finPagamento = document.getElementById('f-fin-pagamento')?.value || 'avista';
+  // Collect parcelas from DOM
+  const finParcelas = [];
+  document.querySelectorAll('.parcela-entry').forEach((row, i) => {
+    const valEl = row.querySelector('.parcela-val-input');
+    const dateEl = row.querySelector('.parcela-date-input');
+    const val = parseFloat(valEl?.value || 0) || 0;
+    const date = dateEl?.value || '';
+    if(val || date){
+      // Preserve pago status from existing project parcelas
+      const existingParcelas = previousProject?.fin_parcelas || [];
+      const pago = existingParcelas[i]?.pago || false;
+      const pagoAt = existingParcelas[i]?.pagoAt || '';
+      finParcelas.push({val, date, pago, pagoAt});
+    }
+  });
+
   const payload={
     projectName,
     clientPeople:(document.getElementById('f-client-people').value || '').trim(),
@@ -2133,6 +2292,13 @@ async function saveProject(id){
     createdAt,
     completedAt,
     pipelineDays,
+    fin_valor: finValor,
+    fin_nf_pct: finNfPct,
+    fin_nf_valor: finNfValor,
+    fin_custo_designer: finCustoDesigner,
+    fin_custos_extras: finCustosExtras,
+    fin_pagamento: finPagamento,
+    fin_parcelas: finParcelas,
   };
 
   if(id && id!=='null'){
@@ -2695,6 +2861,7 @@ function render(){
   renderCompletedGrid();
   renderTimelineBoard();
   renderDemandsBoard();
+  if(activeDashboard==='financeiro') renderFinanceiroBoard();
   updateView();
   switchDashboard(activeDashboard);
   syncOrderSelectors();
@@ -2742,6 +2909,271 @@ async function initApp(){
       await loadProjects();
     }
   });
+}
+
+
+/* ============================================================
+   FINANCEIRO — helpers, modal utils, board render
+   ============================================================ */
+
+// Modal: NF preview
+function updateNfPreview(){
+  const val = parseFloat(document.getElementById('f-fin-valor')?.value) || 0;
+  const pct = parseInt(document.getElementById('f-fin-nf-pct')?.value) || 0;
+  const preview = document.getElementById('fin-nf-preview');
+  if(!preview) return;
+  if(pct > 0 && val > 0){
+    const deducted = val * (1 - pct/100);
+    preview.textContent = `Valor com NF (${pct}%): ${fmtBRL(deducted)}`;
+  } else {
+    preview.textContent = '';
+  }
+}
+
+// Modal: payment mode selector
+function selectPaymentMode(mode){
+  const input = document.getElementById('f-fin-pagamento');
+  if(input) input.value = mode;
+  document.querySelectorAll('.payment-mode-tab').forEach(btn=>{
+    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(
+      mode === 'avista' ? 'vista' : mode === 'parcelado' ? 'prazo' : 'permuta'
+    ));
+  });
+  const builder = document.getElementById('fin-parcelas-builder');
+  if(builder) builder.style.display = mode === 'parcelado' ? 'block' : 'none';
+}
+
+// Modal: render parcelas builder HTML
+function renderParcelasBuilder(parcelas){
+  if(!Array.isArray(parcelas) || !parcelas.length){
+    return `<div class="parcela-entry">
+      <span class="parcela-num">1</span>
+      <input type="number" class="parcela-val-input" placeholder="Valor (R$)" min="0" step="0.01">
+      <input type="date" class="parcela-date-input">
+      <button type="button" class="btn-icon-del" onclick="removeParcelaEntry(this)">🗑</button>
+    </div>`;
+  }
+  return parcelas.map((p,i)=>`<div class="parcela-entry">
+    <span class="parcela-num">${i+1}</span>
+    <input type="number" class="parcela-val-input" placeholder="Valor (R$)" min="0" step="0.01" value="${p.val||''}">
+    <input type="date" class="parcela-date-input" value="${p.date||''}">
+    <button type="button" class="btn-icon-del" onclick="removeParcelaEntry(this)">🗑</button>
+  </div>`).join('');
+}
+
+// Modal: add parcela entry row
+function addParcelaEntry(){
+  const container = document.getElementById('parcelas-entries');
+  if(!container) return;
+  const idx = container.querySelectorAll('.parcela-entry').length + 1;
+  const div = document.createElement('div');
+  div.className = 'parcela-entry';
+  div.innerHTML = `<span class="parcela-num">${idx}</span>
+    <input type="number" class="parcela-val-input" placeholder="Valor (R$)" min="0" step="0.01">
+    <input type="date" class="parcela-date-input">
+    <button type="button" class="btn-icon-del" onclick="removeParcelaEntry(this)">🗑</button>`;
+  container.appendChild(div);
+  renumberParcelas();
+}
+
+// Modal: remove parcela entry
+function removeParcelaEntry(btn){
+  btn.closest('.parcela-entry')?.remove();
+  renumberParcelas();
+}
+
+// Modal: renumber parcelas
+function renumberParcelas(){
+  document.querySelectorAll('#parcelas-entries .parcela-entry').forEach((row,i)=>{
+    const num = row.querySelector('.parcela-num');
+    if(num) num.textContent = i+1;
+  });
+}
+
+// Painel Financeiro: mark single payment (à vista) as paid
+async function marcarPagamento(projectId){
+  const project = projects.find(p=>Number(p.id)===Number(projectId));
+  if(!project) return;
+  project.fin_pago_avista = true;
+  project.fin_pago_avista_at = nowIso();
+  await persistProjects();
+  renderFinanceiroBoard();
+  renderMetrics();
+}
+
+// Painel Financeiro: mark parcela as paid
+async function marcarParcela(projectId, parcelaIdx){
+  const project = projects.find(p=>Number(p.id)===Number(projectId));
+  if(!project || !Array.isArray(project.fin_parcelas)) return;
+  if(project.fin_parcelas[parcelaIdx]){
+    project.fin_parcelas[parcelaIdx].pago = true;
+    project.fin_parcelas[parcelaIdx].pagoAt = nowIso();
+  }
+  await persistProjects();
+  renderFinanceiroBoard();
+}
+
+// Painel Financeiro: render main board
+function renderFinanceiroBoard(){
+  const board = document.getElementById('fin-board');
+  const summary = document.getElementById('fin-summary');
+  if(!board || !summary) return;
+
+  const allProjects = projects;
+
+  // Summary metrics
+  const nonPermuta = allProjects.filter(p=>p.fin_pagamento !== 'permuta');
+  const totalValor = nonPermuta.reduce((s,p)=>s+(Number(p.fin_valor)||0),0);
+  const totalNfValor = nonPermuta.reduce((s,p)=>s+(Number(p.fin_nf_valor)||0),0);
+  const totalCustos = allProjects.reduce((s,p)=>s+(Number(p.fin_custo_designer)||0)+(Number(p.fin_custos_extras)||0),0);
+  const lucro = totalValor - totalCustos;
+
+  // Pending payments
+  let pendingCount = 0;
+  let pendingTotal = 0;
+  let lateCount = 0;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  allProjects.forEach(p=>{
+    if(p.fin_pagamento === 'avista' && !p.fin_pago_avista && (p.fin_valor > 0)){
+      pendingCount++;
+      pendingTotal += Number(p.fin_valor)||0;
+    } else if(p.fin_pagamento === 'parcelado' && Array.isArray(p.fin_parcelas)){
+      p.fin_parcelas.forEach(parc=>{
+        if(!parc.pago){
+          pendingCount++;
+          pendingTotal += Number(parc.val)||0;
+          if(parc.date && new Date(parc.date+'T12:00') < today) lateCount++;
+        }
+      });
+    }
+  });
+
+  summary.innerHTML = `
+    <div class="fin-summary-card">
+      <div class="fin-summary-label">Valor total portfólio</div>
+      <div class="fin-summary-val">${fmtBRL(totalValor)}</div>
+      <div class="fin-summary-sub">Excluindo permutas</div>
+    </div>
+    <div class="fin-summary-card">
+      <div class="fin-summary-label">Valor das notas fiscais</div>
+      <div class="fin-summary-val">${fmtBRL(totalNfValor)}</div>
+      <div class="fin-summary-sub">Líquido pós-dedução NF</div>
+    </div>
+    <div class="fin-summary-card">
+      <div class="fin-summary-label">Custos totais</div>
+      <div class="fin-summary-val" style="color:var(--danger)">${fmtBRL(totalCustos)}</div>
+      <div class="fin-summary-sub">Designer + extras</div>
+    </div>
+    <div class="fin-summary-card">
+      <div class="fin-summary-label">Margem estimada</div>
+      <div class="fin-summary-val" style="color:${lucro>=0?'var(--success)':'var(--danger)'}">${fmtBRL(lucro)}</div>
+      <div class="fin-summary-sub">${lucro>=0?'Resultado positivo':'Resultado negativo'}</div>
+    </div>
+    <div class="fin-summary-card">
+      <div class="fin-summary-label">Pagamentos pendentes</div>
+      <div class="fin-summary-val" style="color:var(--warning)">${pendingCount}</div>
+      <div class="fin-summary-sub">${fmtBRL(pendingTotal)} a receber${lateCount>0?` · <span style="color:var(--danger)">${lateCount} em atraso</span>`:''}</div>
+    </div>
+  `;
+
+  if(!allProjects.length){
+    board.innerHTML = '<div class="fin-empty">Nenhum projeto cadastrado ainda.</div>';
+    return;
+  }
+
+  board.innerHTML = allProjects.map(p=>{
+    const isPermuta = p.fin_pagamento === 'permuta';
+    const valor = Number(p.fin_valor)||0;
+    const nfPct = Number(p.fin_nf_pct)||0;
+    const nfValor = Number(p.fin_nf_valor)||valor;
+    const custoDesigner = Number(p.fin_custo_designer)||0;
+    const custosExtras = Number(p.fin_custos_extras)||0;
+    const custoTotal = custoDesigner + custosExtras;
+    const margem = isPermuta ? null : valor - custoTotal;
+
+    // Payment status
+    let paymentHtml = '';
+    if(p.fin_pagamento === 'parcelado' && Array.isArray(p.fin_parcelas) && p.fin_parcelas.length){
+      const parcelasHtml = p.fin_parcelas.map((parc,i)=>{
+        const dt = parc.date ? new Date(parc.date+'T12:00') : null;
+        const isLate = dt && dt < today && !parc.pago;
+        let statusHtml;
+        if(parc.pago){
+          statusHtml = `<span class="fin-paid-badge">✓ Pago em ${formatDateShort(parc.pagoAt)}</span>`;
+        } else if(isLate){
+          statusHtml = `<span class="fin-late-badge">Atrasado</span><button class="fin-confirm-btn" onclick="marcarParcela(${p.id},${i})">Confirmar pagamento</button>`;
+        } else {
+          statusHtml = `<span class="fin-pending-badge">Pendente</span><button class="fin-confirm-btn" onclick="marcarParcela(${p.id},${i})">Confirmar pagamento</button>`;
+        }
+        return `<div class="fin-parcela-row">
+          <span class="fin-parcela-num">${i+1}ª</span>
+          <span class="fin-parcela-val">${fmtBRL(parc.val)}</span>
+          <span class="fin-parcela-date">${parc.date ? fmtDate(parc.date) : 'Sem data'}</span>
+          <span class="fin-parcela-status">${statusHtml}</span>
+        </div>`;
+      }).join('');
+      paymentHtml = `<div class="fin-parcelas"><div class="fin-parcelas-head">Parcelas</div>${parcelasHtml}</div>`;
+    } else if(p.fin_pagamento === 'avista' && valor > 0){
+      const paid = p.fin_pago_avista;
+      paymentHtml = `<div class="fin-parcela-row" style="margin-top:8px">
+        <span class="fin-parcela-val">${fmtBRL(valor)} — Pagamento à vista</span>
+        <span class="fin-parcela-status">
+          ${paid
+            ? `<span class="fin-paid-badge">✓ Pago em ${formatDateShort(p.fin_pago_avista_at)}</span>`
+            : `<span class="fin-pending-badge">Pendente</span><button class="fin-confirm-btn" onclick="marcarPagamento(${p.id})">Confirmar pagamento</button>`
+          }
+        </span>
+      </div>`;
+    }
+
+    return `<div class="fin-project-card">
+      <div class="fin-project-head">
+        <div>
+          <div class="fin-meta-row">
+            <span class="pill">${escapeHtml(p.projectCategory||'—')}</span>
+            <span class="pill">${escapeHtml(p.segment||'Sem segmento')}</span>
+            ${isPermuta ? '<span class="fin-tag fin-tag-purple">⇄ Permuta</span>' :
+              p.fin_pagamento==='parcelado' ? '<span class="fin-tag fin-tag-info">Parcelado</span>' :
+              '<span class="fin-tag fin-tag-green">À vista</span>'}
+          </div>
+          <div class="fin-project-title">${escapeHtml(p.projectName||'Projeto sem nome')}</div>
+          <div class="fin-project-sub">Responsável: ${escapeHtml(p.responsible||'—')}</div>
+        </div>
+        <button class="btn btn-small" onclick="openEdit(${p.id},'pipeline')">Editar</button>
+      </div>
+      <div class="fin-values-grid">
+        <div class="fin-value-box">
+          <div class="fin-value-label">Valor do projeto</div>
+          <div class="fin-value-num">${isPermuta ? '<em style="font-size:13px">Permuta</em>' : fmtBRL(valor)}</div>
+        </div>
+        ${nfPct > 0 ? `<div class="fin-value-box">
+          <div class="fin-value-label">NF (${nfPct}%) — Líquido</div>
+          <div class="fin-value-num">${fmtBRL(nfValor)}</div>
+        </div>` : ''}
+        ${custoDesigner > 0 ? `<div class="fin-value-box">
+          <div class="fin-value-label">Custo designer</div>
+          <div class="fin-value-num neg">${fmtBRL(custoDesigner)}</div>
+        </div>` : ''}
+        ${custosExtras > 0 ? `<div class="fin-value-box">
+          <div class="fin-value-label">Custos extras</div>
+          <div class="fin-value-num neg">${fmtBRL(custosExtras)}</div>
+        </div>` : ''}
+        ${!isPermuta && (custoTotal > 0 || valor > 0) ? `<div class="fin-value-box">
+          <div class="fin-value-label">Margem estimada</div>
+          <div class="fin-value-num ${margem>=0?'pos':'neg'}">${fmtBRL(margem)}</div>
+        </div>` : ''}
+      </div>
+      ${isPermuta ? '<div class="fin-permuta-note">⇄ Este projeto é uma permuta e não entra na soma geral do portfólio.</div>' : paymentHtml}
+    </div>`;
+  }).join('');
+}
+
+function formatDateShort(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
 }
 
 initApp();
